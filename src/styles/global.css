@@ -1,0 +1,29 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Base Colors */
+  --primary-color: #01253E;
+  --secondary-color: #FEEFE0;
+  --Tertiary-color: #F0F2F5;
+
+  /* Semantic Colors */
+  --pending-color: #FBC02D;
+  --success-color: #4CAF50;
+  --links-color: #1B46C6;
+  --warning-color: #C62828;
+
+  /* Fonts */
+  --font-serif: 'Georgia Pro', serif;
+  --font-sans: 'DM Sans', sans-serif;
+}
+
+body {
+  background-color: var(--primary-color);
+  width: 100vw;
+  height: 100vh;
+  color: var(--secondary-color);
+  scroll-behavior: smooth;
+  overflow-x: hidden;
+}
