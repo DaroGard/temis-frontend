@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import NavLink from './NavLink';
 import { useRouter } from '@tanstack/react-router';
+import { Link } from '@tanstack/react-router'
 
 interface NavbarProps {
   onNavigateHome: () => void;
@@ -100,9 +101,12 @@ const Navbar = ({ onNavigateHome, onNavigateAbout, onNavigateServices }: NavbarP
           </div>
           {/* Iniciar sesión */}
           <div>
-            <button className="bg-primary hover:bg-links text-secondary font-semibold py-2 px-4 rounded-md text-lg transition-all duration-300 ease-in-out transform hover:-translate-y-1 hover:shadow-lg">
+            <Link
+              to="/login"
+              className="inline-block bg-primary hover:bg-links text-secondary font-semibold py-2 px-4 rounded-md text-lg transition-all duration-300 ease-in-out transform hover:-translate-y-1 hover:shadow-lg"
+            >
               Iniciar sesión
-            </button>
+            </Link>
           </div>
         </div>
       </div>
