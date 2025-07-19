@@ -53,14 +53,12 @@ export default function LoginForm() {
                         Iniciar sesión
                     </button>
                 </form>
-                {/* 
-        <p className="text-center text-sm text-gray-600 mt-6">
-          ¿Aún no tienes una cuenta?{' '}
-          <Link to="/signup" className="text-[var(--links-color)] font-medium hover:underline">
-            Regístrate
-          </Link>
-        </p>
-        */}
+                <p className="text-center text-sm text-gray-600 mt-6">
+                    ¿Aún no tienes una cuenta?{' '}
+                    <Link to="/signup" className="text-[var(--links-color)] font-medium hover:underline">
+                        Regístrate
+                    </Link>
+                </p>
             </div>
         </motion.div>
     )
