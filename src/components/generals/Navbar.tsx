@@ -2,7 +2,8 @@ import React, { useEffect, useState } from 'react';
 import NavLink from './NavLink';
 import { useRouter } from '@tanstack/react-router';
 import { Link } from '@tanstack/react-router'
-
+import logo from '~/assets/logos/logotemis2.svg'
+ 
 interface NavbarProps {
   onNavigateHome: () => void;
   onNavigateAbout: () => void;
@@ -58,7 +59,7 @@ const Navbar = ({ onNavigateHome, onNavigateAbout, onNavigateServices }: NavbarP
           <div className="flex items-center space-x-8">
             {/* Logo */}
             <div className="flex-shrink-0">
-              <img className="h-6 w-6" src="Logo.svg" alt="TemisLogo" />
+              <img className="h-full w-full" src={logo} alt="TemisLogo" />
             </div>
             {/* Enlaces */}
             <div className="flex space-x-4">
