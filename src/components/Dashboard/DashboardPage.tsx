@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import DashboardHeader from './Header';
 import MetricsCards from './MetricsCards';
 import CasesSection from './CasesSection';
 import InvoicesSection from './InvoicesSection';

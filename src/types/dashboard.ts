@@ -24,9 +24,10 @@ export interface LegalCase {
   description: string;
   priority_level: 'low' | 'medium' | 'high';
   notes: string;
-  status: 'active' | 'pending' | 'closed';
+  status: 'active' | 'pending' | 'urgent' | 'closed';
   client?: Client;
 }
+
 
 export interface Invoice {
   id: number;
@@ -48,6 +49,7 @@ export interface Client {
   phone_2?: string;
   address: string;
 }
+
 
 export interface Agenda {
   id: number;
