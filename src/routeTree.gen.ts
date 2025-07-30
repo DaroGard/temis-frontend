@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SignupRouteImport } from './routes/signup'
+import { Route as NewCaseRouteImport } from './routes/newCase'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as CasesRouteImport } from './routes/cases'
@@ -19,6 +20,11 @@ import { Route as IndexRouteImport } from './routes/index'
 const SignupRoute = SignupRouteImport.update({
   id: '/signup',
   path: '/signup',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NewCaseRoute = NewCaseRouteImport.update({
+  id: '/newCase',
+  path: '/newCase',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -53,6 +59,7 @@ export interface FileRoutesByFullPath {
   '/cases': typeof CasesRoute
   '/dashboard': typeof DashboardRoute
   '/login': typeof LoginRoute
+  '/newCase': typeof NewCaseRoute
   '/signup': typeof SignupRoute
 }
 export interface FileRoutesByTo {
@@ -61,6 +68,7 @@ export interface FileRoutesByTo {
   '/cases': typeof CasesRoute
   '/dashboard': typeof DashboardRoute
   '/login': typeof LoginRoute
+  '/newCase': typeof NewCaseRoute
   '/signup': typeof SignupRoute
 }
 export interface FileRoutesById {
@@ -70,6 +78,7 @@ export interface FileRoutesById {
   '/cases': typeof CasesRoute
   '/dashboard': typeof DashboardRoute
   '/login': typeof LoginRoute
+  '/newCase': typeof NewCaseRoute
   '/signup': typeof SignupRoute
 }
 export interface FileRouteTypes {
@@ -80,9 +89,17 @@ export interface FileRouteTypes {
     | '/cases'
     | '/dashboard'
     | '/login'
+    | '/newCase'
     | '/signup'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/InvoicesPage' | '/cases' | '/dashboard' | '/login' | '/signup'
+  to:
+    | '/'
+    | '/InvoicesPage'
+    | '/cases'
+    | '/dashboard'
+    | '/login'
+    | '/newCase'
+    | '/signup'
   id:
     | '__root__'
     | '/'
@@ -90,6 +107,7 @@ export interface FileRouteTypes {
     | '/cases'
     | '/dashboard'
     | '/login'
+    | '/newCase'
     | '/signup'
   fileRoutesById: FileRoutesById
 }
@@ -99,6 +117,7 @@ export interface RootRouteChildren {
   CasesRoute: typeof CasesRoute
   DashboardRoute: typeof DashboardRoute
   LoginRoute: typeof LoginRoute
+  NewCaseRoute: typeof NewCaseRoute
   SignupRoute: typeof SignupRoute
 }
 
@@ -109,6 +128,13 @@ declare module '@tanstack/react-router' {
       path: '/signup'
       fullPath: '/signup'
       preLoaderRoute: typeof SignupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/newCase': {
+      id: '/newCase'
+      path: '/newCase'
+      fullPath: '/newCase'
+      preLoaderRoute: typeof NewCaseRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -155,6 +181,7 @@ const rootRouteChildren: RootRouteChildren = {
   CasesRoute: CasesRoute,
   DashboardRoute: DashboardRoute,
   LoginRoute: LoginRoute,
+  NewCaseRoute: NewCaseRoute,
   SignupRoute: SignupRoute,
 }
 export const routeTree = rootRouteImport

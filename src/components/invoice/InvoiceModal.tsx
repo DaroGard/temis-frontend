@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import type { Invoice } from '~/types/invoice';
 import { motion } from 'framer-motion';
 
@@ -18,45 +18,50 @@ interface Props {
 
 const styles = StyleSheet.create({
   page: {
-    padding: 20,
+    padding: 24,
     fontSize: 12,
     fontFamily: 'Helvetica',
+    backgroundColor: '#fafafa',
   },
   header: {
-    fontSize: 18,
-    marginBottom: 12,
+    fontSize: 22,
+    marginBottom: 18,
     textAlign: 'center',
     fontWeight: 'bold',
+    color: '#222',
   },
   section: {
-    marginBottom: 10,
+    marginBottom: 16,
   },
   labelValueRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 6,
+    marginBottom: 8,
   },
   itemRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 6,
-    borderBottomWidth: 0.5,
+    marginBottom: 8,
+    borderBottomWidth: 0.7,
     borderBottomColor: '#ccc',
-    paddingBottom: 4,
+    paddingBottom: 6,
   },
   itemName: {
     flex: 3,
-    fontWeight: 'bold',
+    fontWeight: '600',
+    color: '#111',
   },
   itemDetails: {
     flex: 2,
     textAlign: 'right',
+    color: '#333',
   },
   total: {
-    marginTop: 12,
+    marginTop: 20,
     textAlign: 'right',
-    fontSize: 14,
-    fontWeight: 'bold',
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#111',
   },
 });
 
@@ -66,7 +71,7 @@ const InvoiceDocument: React.FC<{ invoice: Invoice }> = ({ invoice }) => {
       <Page size="A4" style={styles.page}>
         <Text style={styles.header}>Bufete Garcia del Cid</Text>
 
-        <View style={styles.section}>
+        <View style={styles.section} aria-label="Datos de factura">
           <View style={styles.labelValueRow}>
             <Text>Factura #:</Text>
             <Text>{invoice.id}</Text>
@@ -85,8 +90,10 @@ const InvoiceDocument: React.FC<{ invoice: Invoice }> = ({ invoice }) => {
           </View>
         </View>
 
-        <View style={styles.section}>
-          <Text style={{ marginBottom: 6, fontWeight: 'bold' }}>
+        <View style={styles.section} aria-label="Itemización de gastos">
+          <Text
+            style={{ fontWeight: 'bold', marginBottom: 8, fontSize: 14, color: '#222' }}
+          >
             Itemización del Gasto:
           </Text>
 
@@ -106,7 +113,9 @@ const InvoiceDocument: React.FC<{ invoice: Invoice }> = ({ invoice }) => {
               );
             })
           ) : (
-            <Text>No hay gastos registrados.</Text>
+            <Text style={{ fontStyle: 'italic', color: '#666' }}>
+              No hay gastos registrados.
+            </Text>
           )}
         </View>
 
@@ -119,44 +128,79 @@ const InvoiceDocument: React.FC<{ invoice: Invoice }> = ({ invoice }) => {
 };
 
 export const InvoiceModal: React.FC<Props> = ({ invoice, onClose }) => {
+  const modalRef = useRef<HTMLDivElement>(null);
+  
+  useEffect(() => {
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    const handleClickOutside = (e: MouseEvent) => {
+      if (modalRef.current && !modalRef.current.contains(e.target as Node)) {
+        onClose();
+      }
+    };
+
+    document.addEventListener('keydown', handleKey);
+    document.addEventListener('mousedown', handleClickOutside);
+
+    return () => {
+      document.removeEventListener('keydown', handleKey);
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [onClose]);
+
   if (!invoice) return null;
 
   const safeAmount = Number(invoice.amount) || 0;
 
   return (
-    <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="invoice-modal-title"
+      className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4"
+    >
       <motion.div
+        ref={modalRef}
         initial={{ opacity: 0, y: 40 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-white rounded-xl shadow-xl w-full max-w-xl font-[var(--font-sans)]"
+        exit={{ opacity: 0, y: 40 }}
+        transition={{ duration: 0.25 }}
+        className="bg-white rounded-xl shadow-2xl w-full max-w-2xl font-[var(--font-sans)] focus:outline-none"
+        tabIndex={-1}
       >
-        <div className="p-6">
-          <h2 className="text-xl font-semibold text-black mb-1">Bufete Garcia del Cid</h2>
-          <p className="text-sm text-gray-500 mb-6">
+        <div className="p-8">
+          <h2
+            id="invoice-modal-title"
+            className="text-2xl font-bold text-black mb-2"
+          >
+            Bufete Garcia del Cid
+          </h2>
+          <p className="text-gray-600 mb-6 text-lg font-medium">
             Factura #{invoice.id} – {invoice.client}
           </p>
 
-          <div className="bg-[var(--secondary-color)] p-4 rounded-md grid grid-cols-2 gap-4 text-black text-sm mb-4">
-            <div>
-              <p className="text-gray-600">Numero de Factura</p>
-              <p className="font-medium">#{invoice.id}</p>
-            </div>
-            <div>
-              <p className="text-gray-600">Cliente</p>
-              <p className="font-medium">{invoice.client}</p>
-            </div>
-            <div>
-              <p className="text-gray-600">Fecha de Emision</p>
-              <p className="font-medium">{invoice.issueDate}</p>
-            </div>
-            <div>
-              <p className="text-gray-600">Fecha de vencimiento</p>
-              <p className="font-medium">{invoice.dueDate}</p>
-            </div>
+          <div className="grid grid-cols-2 gap-6 bg-[var(--secondary-color)] rounded-lg p-6 text-black text-sm mb-6">
+            {[
+              { label: 'Número de Factura', value: `#${invoice.id}` },
+              { label: 'Cliente', value: invoice.client },
+              { label: 'Fecha de Emisión', value: invoice.issueDate },
+              { label: 'Fecha de Vencimiento', value: invoice.dueDate },
+            ].map(({ label, value }) => (
+              <div key={label} className="">
+                <p className="text-gray-700 text-xs font-semibold">{label}</p>
+                <p className="font-semibold text-base">{value}</p>
+              </div>
+            ))}
           </div>
 
-          <div className="border-t border-gray-300 pt-4">
-            <h3 className="text-black font-semibold mb-3">Itemización del Gasto</h3>
+          <section aria-labelledby="items-section" className="mb-6">
+            <h3
+              id="items-section"
+              className="text-black font-semibold text-xl mb-3"
+            >
+              Itemización del Gasto
+            </h3>
 
             {Array.isArray(invoice.items) && invoice.items.length > 0 ? (
               invoice.items.map((item, idx) => {
@@ -167,32 +211,36 @@ export const InvoiceModal: React.FC<Props> = ({ invoice, onClose }) => {
                 return (
                   <div
                     key={idx}
-                    className="bg-[var(--secondary-color)] text-black p-3 mb-2 rounded-md flex justify-between"
+                    className="bg-[var(--secondary-color)] text-black p-4 mb-3 rounded-md flex justify-between items-center"
                   >
                     <div>
-                      <p className="font-medium">{item.name}</p>
-                      <p className="text-xs text-gray-600">
-                        {safeHours} Hora{safeHours !== 1 ? 's' : ''} x {safeRate.toFixed(2)} US$
+                      <p className="font-semibold text-base">{item.name}</p>
+                      <p className="text-xs text-gray-700 mt-1">
+                        {safeHours} Hora{safeHours !== 1 ? 's' : ''} x{' '}
+                        {safeRate.toFixed(2)} US$
                       </p>
                     </div>
-                    <p className="font-medium">{subtotal.toFixed(2)} US$</p>
+                    <p className="font-semibold text-lg">{subtotal.toFixed(2)} US$</p>
                   </div>
                 );
               })
             ) : (
-              <p className="text-sm text-gray-500">No hay gastos registrados.</p>
+              <p className="text-gray-500 italic text-sm">
+                No hay gastos registrados.
+              </p>
             )}
 
-            <div className="mt-4 bg-gray-100 rounded-md p-3 flex justify-between items-center text-black">
-              <p className="font-medium">Total</p>
-              <p className="text-lg font-semibold">{safeAmount.toFixed(2)} US$</p>
+            <div className="mt-6 bg-gray-100 rounded-md p-4 flex justify-between items-center text-black">
+              <p className="font-semibold text-lg">Total</p>
+              <p className="text-2xl font-bold">{safeAmount.toFixed(2)} US$</p>
             </div>
-          </div>
+          </section>
 
-          <div className="mt-6 flex justify-end gap-2">
+          <footer className="mt-8 flex justify-end gap-3">
             <button
               onClick={onClose}
-              className="bg-white border px-4 py-2 rounded text-black"
+              className="border border-gray-400 hover:border-gray-600 text-gray-800 px-5 py-2 rounded-md transition focus:ring-2 focus:ring-offset-1 focus:ring-gray-400 focus:outline-none"
+              type="button"
             >
               Cerrar
             </button>
@@ -200,15 +248,21 @@ export const InvoiceModal: React.FC<Props> = ({ invoice, onClose }) => {
             <PDFDownloadLink
               document={<InvoiceDocument invoice={invoice} />}
               fileName={`factura_${invoice.id}.pdf`}
-              className="bg-blue-600 text-white px-4 py-2 rounded flex justify-center items-center"
+              className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-md flex items-center justify-center transition focus:ring-2 focus:ring-offset-1 focus:ring-blue-600 focus:outline-none"
             >
-              {({ loading }) => (loading ? 'Generando PDF...' : 'Descargar PDF')}
+              {({ loading }) =>
+                loading ? 'Generando PDF...' : 'Descargar PDF'
+              }
             </PDFDownloadLink>
 
-            <button className="bg-green-600 text-white px-4 py-2 rounded">
+            <button
+              type="button"
+              className="bg-green-600 hover:bg-green-700 text-white px-5 py-2 rounded-md transition focus:ring-2 focus:ring-offset-1 focus:ring-green-600 focus:outline-none"
+              onClick={() => alert('Marcar como pagada')}
+            >
               Marcar como Pagada
             </button>
-          </div>
+          </footer>
         </div>
       </motion.div>
     </div>
