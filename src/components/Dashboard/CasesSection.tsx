@@ -76,12 +76,11 @@ const CasesSection = ({ cases, onViewAll, onManageCase }: CasesSectionProps) => 
                 </div>
             ))}
         </div>
-        <button 
-            onClick={onViewAll}
-            className="w-full mt-6 bg-slate-800 text-white py-3 rounded-lg hover:bg-slate-700 transition-colors font-medium"
-        >
-            Ver todos los casos
+        <a href="/cases">
+        <button className="w-full mt-6 bg-slate-800 text-white py-3 rounded-lg hover:bg-slate-700 transition-colors font-medium">
+          Ver todos los casos
         </button>
+      </a>
     </div>
     );
 };

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import ReactDOM from 'react-dom';
 import {
   MoreVertical,
@@ -44,40 +44,43 @@ export const InvoiceActionsMenu: React.FC<Props> = ({
   const buttonRef = useRef<HTMLButtonElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
 
-  const handlers = {
-    edit: onEdit,
-    delete: onDelete,
-    sendEmail: onSendEmail,
-    duplicate: onDuplicate,
-    markPaid: onMarkPaid,
-    viewHistory: onViewHistory,
-  };
+  const handlers = useMemo(
+    () => ({
+      edit: onEdit,
+      delete: onDelete,
+      sendEmail: onSendEmail,
+      duplicate: onDuplicate,
+      markPaid: onMarkPaid,
+      viewHistory: onViewHistory,
+    }),
+    [onEdit, onDelete, onSendEmail, onDuplicate, onMarkPaid, onViewHistory]
+  );
 
   const toggleMenu = useCallback(() => {
     if (buttonRef.current) {
       const rect = buttonRef.current.getBoundingClientRect();
       setPosition({
-        top: rect.bottom + window.scrollY + 8,
-        left: rect.left + window.scrollX,
+        top: rect.bottom + window.scrollY + 6,
+        left: Math.min(rect.left + window.scrollX, window.innerWidth - 220),
       });
     }
     setOpen((prev) => !prev);
   }, []);
 
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
+    const handleClickOutside = (e: MouseEvent) => {
       if (
         menuRef.current &&
-        !menuRef.current.contains(event.target as Node) &&
+        !menuRef.current.contains(e.target as Node) &&
         buttonRef.current &&
-        !buttonRef.current.contains(event.target as Node)
+        !buttonRef.current.contains(e.target as Node)
       ) {
         setOpen(false);
       }
     };
 
-    const handleEscape = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') setOpen(false);
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setOpen(false);
     };
 
     if (open) {
@@ -99,7 +102,7 @@ export const InvoiceActionsMenu: React.FC<Props> = ({
         aria-haspopup="true"
         aria-expanded={open}
         aria-label={`Abrir menú de acciones para factura #${invoice.id}`}
-        className="p-2 rounded hover:bg-gray-100 text-gray-500 hover:text-black transition-colors focus:outline-none"
+        className="p-2 rounded-full hover:bg-gray-100 text-gray-500 hover:text-black transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
       >
         <MoreVertical size={18} />
       </button>
@@ -108,12 +111,8 @@ export const InvoiceActionsMenu: React.FC<Props> = ({
         ReactDOM.createPortal(
           <div
             ref={menuRef}
-            style={{
-              position: 'absolute',
-              top: position.top,
-              left: position.left,
-            }}
-            className="bg-white shadow-xl rounded-lg z-[1000] min-w-[200px] border animate-fade-in"
+            style={{ top: position.top, left: position.left, position: 'absolute' }}
+            className="bg-white border shadow-lg rounded-xl z-[1000] min-w-[200px] animate-fade-in-up transition-transform duration-150 ease-out"
             role="menu"
             aria-label={`Opciones de factura #${invoice.id}`}
           >
@@ -124,12 +123,11 @@ export const InvoiceActionsMenu: React.FC<Props> = ({
                   handlers[key](invoice);
                   setOpen(false);
                 }}
-                className="flex items-center gap-2 w-full px-4 py-2 text-sm text-left text-gray-700 hover:bg-gray-100 transition-colors"
+                className="flex items-center gap-2 w-full px-4 py-2 text-sm text-left text-gray-700 hover:bg-gray-100 transition-colors focus:outline-none focus-visible:bg-gray-200"
                 role="menuitem"
-                type="button"
               >
                 <Icon size={16} className="text-gray-500" />
-                {label}
+                <span>{label}</span>
               </button>
             ))}
           </div>,

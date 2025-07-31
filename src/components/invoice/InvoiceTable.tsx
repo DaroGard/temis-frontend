@@ -1,15 +1,13 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, Suspense, memo } from 'react';
 import { Eye, Download } from 'lucide-react';
 import { pdf } from '@react-pdf/renderer';
 import type { Invoice } from '~/types/invoice';
 import { StatusBadge } from './StatusBadge';
-import { InvoiceModal } from './InvoiceModal';
-import { InvoiceDocument } from './InvoiceDocument';
 import { InvoiceActionsMenu } from './InvoiceActionsMenu';
 
-interface Props {
-  invoices: Invoice[];
-}
+const InvoiceModal = React.lazy(() =>
+  import('./InvoiceModal').then((m) => ({ default: m.InvoiceModal }))
+);
 
 const formatCurrency = (value: number) =>
   value.toLocaleString('es-ES', {
@@ -20,19 +18,103 @@ const formatCurrency = (value: number) =>
 
 const formatDate = (dateStr: string) => {
   const d = new Date(dateStr);
-  if (isNaN(d.getTime())) return dateStr;
-  return d.toLocaleDateString('es-ES', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric',
-  });
+  return isNaN(d.getTime())
+    ? dateStr
+    : d.toLocaleDateString('es-ES', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+    });
 };
 
-export const InvoiceTable: React.FC<Props> = ({ invoices }) => {
+const InvoiceRow = memo(
+  ({
+    inv,
+    onSelect,
+    onDownloadPdf,
+    onEdit,
+    onDelete,
+    onSendEmail,
+    onDuplicate,
+    onMarkPaid,
+    onViewHistory,
+  }: {
+    inv: Invoice;
+    onSelect: (inv: Invoice) => void;
+    onDownloadPdf: (inv: Invoice) => void;
+    onEdit: (inv: Invoice) => void;
+    onDelete: (inv: Invoice) => void;
+    onSendEmail: (inv: Invoice) => void;
+    onDuplicate: (inv: Invoice) => void;
+    onMarkPaid: (inv: Invoice) => void;
+    onViewHistory: (inv: Invoice) => void;
+  }) => (
+    <tr
+      key={inv.id}
+      className="border-t border-gray-100 hover:bg-blue-50 transition-colors duration-150 focus-within:bg-blue-100"
+      tabIndex={0}
+      aria-label={`Factura número ${inv.id} para cliente ${inv.client}`}
+      onKeyDown={(e) => e.key === 'Enter' && onSelect(inv)}
+    >
+      <td className="px-5 py-4 font-semibold">{inv.id}</td>
+      <td className="px-5 py-4">{inv.client}</td>
+      <td className="px-5 py-4">{inv.caseNumber}</td>
+      <td className="px-5 py-4">{formatCurrency(Number(inv.amount) || 0)}</td>
+      <td className="px-5 py-4">
+        <StatusBadge status={inv.status} />
+      </td>
+      <td className="px-5 py-4">{formatDate(inv.dueDate)}</td>
+      <td className="px-5 py-4 text-center">
+        <div className="flex items-center justify-center gap-3">
+          <button
+            type="button"
+            onClick={() => onSelect(inv)}
+            className="inline-flex items-center gap-1 text-sm text-links hover:underline transition focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-links rounded"
+            aria-label={`Ver detalles de factura #${inv.id}`}
+          >
+            <Eye size={16} aria-hidden="true" /> Ver
+          </button>
+
+          <button
+            type="button"
+            onClick={() => onDownloadPdf(inv)}
+            className="p-1 text-gray-500 hover:text-gray-800 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-gray-400 rounded"
+            aria-label={`Descargar factura #${inv.id} en PDF`}
+          >
+            <Download size={18} aria-hidden="true" />
+          </button>
+
+          <InvoiceActionsMenu
+            invoice={inv}
+            onEdit={onEdit}
+            onDelete={onDelete}
+            onSendEmail={onSendEmail}
+            onDuplicate={onDuplicate}
+            onMarkPaid={onMarkPaid}
+            onViewHistory={onViewHistory}
+          />
+        </div>
+      </td>
+    </tr>
+  )
+);
+
+interface Props {
+  invoices: Invoice[];
+}
+
+const InvoiceTable: React.FC<Props> = ({ invoices }) => {
   const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
+
+  const handleSelect = useCallback((inv: Invoice) => {
+    setSelectedInvoice(inv);
+  }, []);
 
   const handleDownloadPdf = useCallback(async (invoice: Invoice) => {
     try {
+      const { default: InvoiceDocument } = await import('./InvoiceDocument').then((m) => ({
+        default: m.InvoiceDocument,
+      }));
       const blob = await pdf(<InvoiceDocument invoice={invoice} />).toBlob();
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -46,102 +128,73 @@ export const InvoiceTable: React.FC<Props> = ({ invoices }) => {
     }
   }, []);
 
-  const handleEdit = useCallback((invoice: Invoice) => {
-    console.log('Editar', invoice);
+  const handleEdit = useCallback((inv: Invoice) => {
+    console.log('Editar', inv);
   }, []);
-  const handleDelete = useCallback((invoice: Invoice) => {
-    if (window.confirm(`¿Seguro que quieres eliminar la factura #${invoice.id}?`)) {
-      console.log('Eliminar', invoice);
+
+  const handleDelete = useCallback((inv: Invoice) => {
+    if (window.confirm(`¿Seguro que quieres eliminar la factura #${inv.id}?`)) {
+      console.log('Eliminar', inv);
     }
   }, []);
-  const handleSendEmail = useCallback((invoice: Invoice) => {
-    console.log('Enviar por correo', invoice);
+
+  const handleSendEmail = useCallback((inv: Invoice) => {
+    console.log('Enviar por correo', inv);
   }, []);
-  const handleDuplicate = useCallback((invoice: Invoice) => {
-    console.log('Duplicar', invoice);
+
+  const handleDuplicate = useCallback((inv: Invoice) => {
+    console.log('Duplicar', inv);
   }, []);
-  const handleMarkPaid = useCallback((invoice: Invoice) => {
-    console.log('Marcar como pagada', invoice);
+
+  const handleMarkPaid = useCallback((inv: Invoice) => {
+    console.log('Marcar como pagada', inv);
   }, []);
-  const handleViewHistory = useCallback((invoice: Invoice) => {
-    console.log('Ver historial', invoice);
+
+  const handleViewHistory = useCallback((inv: Invoice) => {
+    console.log('Ver historial', inv);
   }, []);
 
   return (
     <>
-      <div className="bg-white rounded-lg shadow border overflow-x-auto">
-        <table className="min-w-full table-auto text-sm text-gray-700">
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-x-auto transition-all">
+        <table className="min-w-full table-auto text-sm text-gray-800">
           <thead>
-            <tr className="bg-gray-50 uppercase text-xs text-gray-600 select-none">
-              <th className="px-5 py-3 text-left font-semibold tracking-wide">N°</th>
-              <th className="px-5 py-3 text-left font-semibold tracking-wide">Cliente</th>
-              <th className="px-5 py-3 text-left font-semibold tracking-wide">Caso</th>
-              <th className="px-5 py-3 text-left font-semibold tracking-wide">Valor</th>
-              <th className="px-5 py-3 text-left font-semibold tracking-wide">Estado</th>
-              <th className="px-5 py-3 text-left font-semibold tracking-wide">Vencimiento</th>
-              <th className="px-5 py-3 text-center font-semibold tracking-wide">Acciones</th>
+            <tr className="bg-gray-100 text-xs uppercase tracking-wide text-gray-600 select-none">
+              <th className="px-5 py-3 text-left font-semibold">N°</th>
+              <th className="px-5 py-3 text-left font-semibold">Cliente</th>
+              <th className="px-5 py-3 text-left font-semibold">Caso</th>
+              <th className="px-5 py-3 text-left font-semibold">Valor</th>
+              <th className="px-5 py-3 text-left font-semibold">Estado</th>
+              <th className="px-5 py-3 text-left font-semibold">Vencimiento</th>
+              <th className="px-5 py-3 text-center font-semibold">Acciones</th>
             </tr>
           </thead>
           <tbody>
             {invoices.map((inv) => (
-              <tr
+              <InvoiceRow
                 key={inv.id}
-                className="border-t border-gray-100 hover:bg-blue-50 transition-colors duration-200 cursor-pointer"
-                tabIndex={0}
-                aria-label={`Factura número ${inv.id} para cliente ${inv.client}`}
-                onKeyDown={e => {
-                  if (e.key === 'Enter') setSelectedInvoice(inv);
-                }}
-              >
-                <td className="px-5 py-4 font-medium">{inv.id}</td>
-                <td className="px-5 py-4">{inv.client}</td>
-                <td className="px-5 py-4">{inv.caseNumber}</td>
-                <td className="px-5 py-4">{formatCurrency(Number(inv.amount) || 0)}</td>
-                <td className="px-5 py-4">
-                  <StatusBadge status={inv.status} />
-                </td>
-                <td className="px-5 py-4">{formatDate(inv.dueDate)}</td>
-                <td className="px-5 py-4 text-center flex items-center justify-center gap-3">
-                  <button
-                    type="button"
-                    onClick={() => setSelectedInvoice(inv)}
-                    className="text-[var(--links-color)] hover:underline flex items-center gap-1 text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-[var(--links-color)] rounded"
-                    aria-label={`Ver detalles de factura #${inv.id}`}
-                  >
-                    <Eye size={16} aria-hidden="true" /> Ver
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => handleDownloadPdf(inv)}
-                    className="text-gray-500 hover:text-gray-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-gray-500 rounded p-1"
-                    aria-label={`Descargar factura #${inv.id} en PDF`}
-                  >
-                    <Download size={18} aria-hidden="true" />
-                  </button>
-
-                  <InvoiceActionsMenu
-                    invoice={inv}
-                    onEdit={handleEdit}
-                    onDelete={handleDelete}
-                    onSendEmail={handleSendEmail}
-                    onDuplicate={handleDuplicate}
-                    onMarkPaid={handleMarkPaid}
-                    onViewHistory={handleViewHistory}
-                  />
-                </td>
-              </tr>
+                inv={inv}
+                onSelect={handleSelect}
+                onDownloadPdf={handleDownloadPdf}
+                onEdit={handleEdit}
+                onDelete={handleDelete}
+                onSendEmail={handleSendEmail}
+                onDuplicate={handleDuplicate}
+                onMarkPaid={handleMarkPaid}
+                onViewHistory={handleViewHistory}
+              />
             ))}
           </tbody>
         </table>
       </div>
 
       {selectedInvoice && (
-        <InvoiceModal
-          invoice={selectedInvoice}
-          onClose={() => setSelectedInvoice(null)}
-        />
+        <Suspense fallback={<div className="p-4 text-center text-sm text-gray-500">Cargando factura...</div>}>
+          <InvoiceModal invoice={selectedInvoice} onClose={() => setSelectedInvoice(null)} />
+        </Suspense>
       )}
     </>
   );
 };
+
+export default InvoiceTable;

@@ -90,7 +90,7 @@ export default function LoginForm() {
       <div className="pt-12 p-8">
         <h2
           id="login-title"
-          className="text-4xl font-semibold text-center mb-4 font-[var(--font-serif)]"
+          className="text-4xl text-center mb-4 font-[var(--font-serif)]"
         >
           Bienvenido
         </h2>
@@ -116,11 +116,10 @@ export default function LoginForm() {
               aria-invalid={errors.email ? 'true' : 'false'}
               aria-describedby={errors.email ? 'email-error' : undefined}
               {...register('email')}
-              className={`w-full px-5 py-4 border-b-2 rounded-t-md focus:outline-none focus:ring-0 focus:border-[var(--primary-color)] text-lg transition-colors duration-300 placeholder:text-gray-400 ${
-                errors.email
+              className={`w-full px-5 py-4 border-b-2 rounded-t-md focus:outline-none focus:ring-0 focus:border-[var(--primary-color)] text-lg transition-colors duration-300 placeholder:text-gray-400 ${errors.email
                   ? 'border-[var(--warning-color)] placeholder:text-[var(--warning-color)]'
                   : 'border-gray-300'
-              }`}
+                }`}
             />
             <AnimatePresence>
               {errors.email && (
@@ -152,11 +151,10 @@ export default function LoginForm() {
               aria-invalid={errors.password ? 'true' : 'false'}
               aria-describedby={errors.password ? 'password-error' : undefined}
               {...register('password')}
-              className={`w-full px-5 py-4 border-b-2 rounded-b-md focus:outline-none focus:ring-0 focus:border-[var(--primary-color)] text-lg transition-colors duration-300 placeholder:text-gray-400 ${
-                errors.password
+              className={`w-full px-5 py-4 border-b-2 rounded-b-md focus:outline-none focus:ring-0 focus:border-[var(--primary-color)] text-lg transition-colors duration-300 placeholder:text-gray-400 ${errors.password
                   ? 'border-[var(--warning-color)] placeholder:text-[var(--warning-color)]'
                   : 'border-gray-300'
-              }`}
+                }`}
             />
             <AnimatePresence>
               {errors.password && (

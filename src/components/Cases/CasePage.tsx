@@ -1,4 +1,3 @@
-// pages/CasosPage.tsx
 import { useEffect, useState } from "react";
 import { Plus, Search, Filter } from "lucide-react";
 import { Link } from "@tanstack/react-router";
@@ -6,14 +5,15 @@ import { Link } from "@tanstack/react-router";
 import { Navbar } from "~/components/layout/user/UserNavbar";
 import Footer from "~/components/layout/user/UserFooter";
 
-import CasesMetricsCards from "./CaseStatsCards"; // Asegura la ruta correcta
-import { Input } from "~/components/ui/input";
+import CasesMetricsCards from "./CaseStatsCards";
+import { Input } from "~/components/ui/Input";
 import { Select } from "~/components/ui/Select";
-import { Button } from "../generals/button"; // Asegura la ruta correcta
+import { Button } from "../generals/button";
 
 import { CasesMetrics } from "~/types/cases";
 import { LegalCase, Client } from '~/types/cases'
 import CaseCard from '~/components/Cases/CaseCard'
+import { ArrowLeft } from 'lucide-react';
 
 const mockData = {
     metrics: {
@@ -136,12 +136,12 @@ const CasosPage = () => {
 
     const filteredCases = cases.filter(caseItem => {
         const matchesSearchTerm = searchTerm.toLowerCase() === '' ||
-        caseItem.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (caseItem.client?.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-        caseItem.case_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        caseItem.case_type.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        caseItem.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        caseItem.notes.toLowerCase().includes(searchTerm.toLowerCase());
+            caseItem.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            (caseItem.client?.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+            caseItem.case_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            caseItem.case_type.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            caseItem.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            caseItem.notes.toLowerCase().includes(searchTerm.toLowerCase());
 
         const matchesStatus = selectedStatus === 'all' || caseItem.status === selectedStatus;
 
@@ -151,77 +151,81 @@ const CasosPage = () => {
     return (
         <div className="min-h-screen bg-slate-50">
             <Navbar />
-
-        <main className="container mx-auto px-6 py-8">
-            <div className="flex justify-between items-start mb-8">
-                <div>
-                    <h1 className="text-3xl font-bold text-slate-800 mb-2">Casos</h1>
-                    <p className="text-slate-600">Gestiona todos los casos legales</p>
-                </div>
+            <div className="px-6 pt-4">
+                <a
+                    href="/dashboard"
+                    className="inline-flex items-center text-sm text-slate-700 hover:text-slate-900 transition-colors"
+                >
+                    <ArrowLeft className="w-4 h-4 mr-2" />
+                    Regresar
+                </a>
             </div>
+            <main className="container mx-auto px-6 py-8">
+                <div className="flex justify-between items-start mb-8">
+                    <div>
+                        <h1 className="text-3xl font-bold text-slate-800 mb-2">Casos</h1>
+                        <p className="text-slate-600">Gestiona todos los casos legales</p>
+                    </div>
+                </div>
 
-            {loading ? (
-                <p className="text-slate-500">Cargando métricas...</p>
-            ) : data ? (
+                {loading ? (
+                    <p className="text-slate-500">Cargando métricas...</p>
+                ) : data ? (
                     <CasesMetricsCards metrics={data.metrics} />
                 ) : (
-                <p className="text-red-500">Error al cargar los datos</p>
-            )}
+                    <p className="text-red-500">Error al cargar los datos</p>
+                )}
 
-            <div className="flex flex-col md:flex-row gap-4 mb-8">
-                <div className="relative flex-grow">
-                    <Input
-                        type="text"
-                        placeholder="Buscar casos, clientes, documentos..."
-                        className="pl-10"
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
+                <div className="flex flex-col md:flex-row gap-4 mb-8">
+                    <div className="relative flex-grow">
+                        <Input
+                            type="text"
+                            placeholder="Buscar casos, clientes, documentos..."
+                            className="pl-10"
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                        />
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
+                    </div>
+                    <Select
+                        placeholder="Todos los estados"
+                        options={[
+                            { value: 'all', label: 'Todos los estados' },
+                            { value: 'active', label: 'Activo' },
+                            { value: 'pending', label: 'Pendiente' },
+                            { value: 'urgent', label: 'Urgente' },
+                            { value: 'closed', label: 'Cerrado' },
+                        ]}
+                        value={selectedStatus}
+                        onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setSelectedStatus(e.target.value)}
+                        className="w-full md:w-auto"
                     />
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
-                </div>
 
-                {/* CAMBIO: Usar tu componente Select en lugar de Dropdown */}
-                <Select // <--- Usamos el componente Select que me proporcionaste
-                    placeholder="Todos los estados"
-                    options={[
-                        { value: 'all', label: 'Todos los estados' },
-                        { value: 'active', label: 'Activo' },
-                        { value: 'pending', label: 'Pendiente' },
-                        { value: 'urgent', label: 'Urgente' },
-                        { value: 'closed', label: 'Cerrado' },
-                    ]}
-                    value={selectedStatus}
-                    // Aquí capturamos el evento del select nativo y extraemos el valor
-                    onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setSelectedStatus(e.target.value)}
-                    className="w-full md:w-auto"
-                />
-
-                <Button variant="outline" size="default" className="w-full md:w-auto">
-                    <Filter className="mr-2" size={20} />
+                    <Button variant="outline" size="default" className="w-full md:w-auto">
+                        <Filter className="mr-2" size={20} />
                         Filtros
-                </Button>
-            </div>
-
-            {/* Sección de la Lista de Casos */}
-            <div className="mt-8">
-                {cases.length === 0 && !loading && <p className="text-slate-500 text-center">No hay casos disponibles.</p>}
-                {loading ? (
-                    <p className="text-slate-500 text-center">Cargando casos...</p>
-                ) : filteredCases.length === 0 ? (
-                    <p className="text-slate-500 text-center">No se encontraron casos que coincidan con los filtros.</p>
-                ) : (
+                    </Button>
+                </div>
+                {/* Sección de la Lista de Casos */}
+                <div className="mt-8">
+                    {cases.length === 0 && !loading && <p className="text-slate-500 text-center">No hay casos disponibles.</p>}
+                    {loading ? (
+                        <p className="text-slate-500 text-center">Cargando casos...</p>
+                    ) : filteredCases.length === 0 ? (
+                        <p className="text-slate-500 text-center">No se encontraron casos que coincidan con los filtros.</p>
+                    ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                             {filteredCases.map((caseItem) => (
                                 <CaseCard key={caseItem.id} caseItem={caseItem} />
                             ))}
                         </div>
                     )}
-            </div>
+                </div>
 
-        </main>
+            </main>
 
-        <Footer />
-    </div>
+            <Footer />
+        </div>
     );
 };
 
