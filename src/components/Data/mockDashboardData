@@ -1,0 +1,93 @@
+export const dashboardStats = [
+{
+    iconName: "folder",
+    title: "Casos Activos",
+    value: 24,
+    subtitle: "+2 esta semana",
+    color: "bg-yellow-100",
+},
+{
+    iconName: "invoice",
+    title: "Factura Pendientes",
+    value: 8,
+    subtitle: "Vence en 5 días",
+    color: "bg-blue-100",
+},
+{
+    iconName: "calendar",
+    title: "Citas Hoy",
+    value: 3,
+    subtitle: "Próxima a las 14:00",
+    color: "bg-green-100",
+},
+{
+    iconName: "alert",
+    title: "Tareas Urgentes",
+    value: 5,
+    subtitle: "Requieren atención",
+    color: "bg-red-100",
+},
+];
+
+export const legalCases = [
+{
+    case_number: "#2024–001",
+    client_name: "María Gonzalez",
+    case_type: "Civil",
+    status: "Activo",
+},
+{
+    case_number: "#2024–002",
+    client_name: "Carlos López",
+    case_type: "Penal",
+    status: "Pendiente",
+},
+];
+
+export const invoices = [
+{
+    invoice_number: "#F–2024–045",
+    client_name: "María Gonzalez",
+    amount: 2500,
+    status: "Pendiente",
+},
+{
+    invoice_number: "#F–2024–046",
+    client_name: "Carlos López",
+    amount: 1800,
+    status: "Pagada",
+},
+];
+
+export const agenda = [
+{
+    time: "14:00",
+    event_name: "Audiencia Civil",
+    location: "Juzgado 5to circuito",
+    type: "Audiencia",
+},
+{
+    time: "16:00",
+    event_name: "Consulta Legal",
+    location: "Bufete Central",
+    type: "Consulta",
+},
+];
+
+export const recentActivity = [
+{
+    type: "document",
+    description: "Documento subido al caso #2024–001",
+    time: "Hace 2 horas",
+},
+{
+    type: "invoice",
+    description: "Factura #F–2024–045 generada",
+    time: "Hace 4 horas",
+},
+{
+    type: "calendar",
+    description: "Cita programada para mañana",
+    time: "Hace 6 horas",
+},
+];

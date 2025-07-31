@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import NavLink from './NavLink';
 import { useRouter } from '@tanstack/react-router';
-
+import { Link } from '@tanstack/react-router'
+import logo from '~/assets/logos/logotemis2.svg'
+ 
 interface NavbarProps {
   onNavigateHome: () => void;
   onNavigateAbout: () => void;
@@ -57,7 +59,7 @@ const Navbar = ({ onNavigateHome, onNavigateAbout, onNavigateServices }: NavbarP
           <div className="flex items-center space-x-8">
             {/* Logo */}
             <div className="flex-shrink-0">
-              <img className="h-6 w-6" src="Logo.svg" alt="TemisLogo" />
+              <img className="h-full w-full" src={logo} alt="TemisLogo" />
             </div>
             {/* Enlaces */}
             <div className="flex space-x-4">
@@ -100,9 +102,12 @@ const Navbar = ({ onNavigateHome, onNavigateAbout, onNavigateServices }: NavbarP
           </div>
           {/* Iniciar sesión */}
           <div>
-            <button className="bg-primary hover:bg-links text-secondary font-semibold py-2 px-4 rounded-md text-lg transition-all duration-300 ease-in-out transform hover:-translate-y-1 hover:shadow-lg">
+            <Link
+              to="/login"
+              className="inline-block bg-primary hover:bg-links text-secondary font-semibold py-2 px-4 rounded-md text-lg transition-all duration-300 ease-in-out transform hover:-translate-y-1 hover:shadow-lg"
+            >
               Iniciar sesión
-            </button>
+            </Link>
           </div>
         </div>
       </div>

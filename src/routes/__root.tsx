@@ -4,13 +4,17 @@ import {
   Scripts,
   createRootRouteWithContext,
 } from '@tanstack/react-router'
-import * as React from 'react'
-import type { QueryClient } from '@tanstack/react-query'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import '../styles/global.css'
 
-export const Route = createRootRouteWithContext<{
-  queryClient: QueryClient
-}>()({
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: { retry: false },
+    mutations: { retry: false },
+  },
+})
+
+export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
   head: () => ({
     meta: [
       { charSet: 'utf-8' },
@@ -27,7 +31,9 @@ function RootComponent() {
         <HeadContent />
       </head>
       <body>
-        <Outlet />
+        <QueryClientProvider client={queryClient}>
+          <Outlet />
+        </QueryClientProvider>
         <Scripts />
       </body>
     </html>

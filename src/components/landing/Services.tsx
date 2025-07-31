@@ -12,7 +12,7 @@ import lawImg from '~/assets/images/landing/law.webp'
 const Services = () => {
     return (
         <section
-            className="w-full py-20 px-6 lg:px-24 bg-[var(--primary-color)] bg-cover bg-center bg-no-repeat text-secondary"
+            className="w-full py-40 px-6 lg:px-24 bg-[var(--primary-color)] bg-cover bg-center bg-no-repeat text-secondary"
             style={{
                 backgroundImage: `url(${lawImg})`,
                 backgroundBlendMode: 'overlay',

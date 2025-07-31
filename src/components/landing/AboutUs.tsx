@@ -4,12 +4,12 @@ import teamImage from '~/assets/images/landing/team.webp';
 
 const AboutUs = () => {
     return (
-        <section className="bg-[var(--Tertiary-color)] text-[var(--primary-color)] py-16 px-4 sm:px-6 lg:px-24">
+        <section className="bg-[var(--Tertiary-color)] text-[var(--primary-color)] py-20 px-4 sm:px-6 lg:px-24">
             <div className="flex flex-col lg:flex-row gap-10 items-center">
 
                 {/* Imagen */}
                 <motion.div
-                    className="w-full lg:w-[400px] rounded-xl overflow-hidden"
+                    className="w-full lg:w-[550px] rounded-xl overflow-hidden"
                     initial={{ opacity: 0, x: -50 }}
                     whileInView={{ opacity: 1, x: 0 }}
                     transition={{ duration: 0.8 }}
