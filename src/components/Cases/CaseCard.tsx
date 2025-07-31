@@ -44,7 +44,6 @@ const CaseCard: React.FC<CaseCardProps> = ({ caseItem }) =>{
         try {
             const today = new Date();
             const targetDate = new Date(dateString);
-            // Asegurarse de que las fechas estén en el mismo día para calcular solo la diferencia de días
             today.setHours(0, 0, 0, 0);
             targetDate.setHours(0, 0, 0, 0);
 
@@ -54,7 +53,7 @@ const CaseCard: React.FC<CaseCardProps> = ({ caseItem }) =>{
             if (diffDays === 0) return 'hoy';
             if (diffDays === 1) return 'ayer';
             if (diffDays > 1) return `hace ${diffDays} días`;
-            return ''; // Para fechas futuras, puedes ajustar la lógica aquí
+            return '';
         } catch (e) {
             console.error("Error calculating days ago:", dateString, e);
             return '';

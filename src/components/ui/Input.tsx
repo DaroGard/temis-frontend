@@ -1,6 +1,5 @@
-// src/components/ui/Input.tsx
 import React from 'react';
-import { cn } from '~/utils/utils'; // Asegúrate de la ruta a tu función cn
+import { cn } from '~/utils/utils'; 
 
 export interface InputProps
 extends React.InputHTMLAttributes<HTMLInputElement> {}

@@ -91,13 +91,14 @@ const InvoicesSection = ({ invoices, onViewAll, onManageInvoice }: InvoicesSecti
                 </div>
             ))}
         </div>
-
-        <button 
-            onClick={onViewAll}
-            className="section-button-blue"
-        >
-            Gestionar Factura
-        </button>
+        <a href="/InvoicesPage">
+            <button 
+                onClick={onViewAll}
+                className="section-button-blue"
+            >
+                Gestionar Factura
+            </button>
+        </a>
     </div>
     );
 };

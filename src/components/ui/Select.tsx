@@ -1,4 +1,3 @@
-// src/components/ui/Select.tsx
 import React from "react";
 import { cn } from "~/utils/utils";
 
@@ -14,7 +13,7 @@ interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
 }
 
 const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
-    ({ options, placeholder, className, value, ...props }, ref) => { // Asegúrate de extraer 'value' aquí
+    ({ options, placeholder, className, value, ...props }, ref) => { 
         return (
             <select
                 className={cn(
@@ -22,11 +21,10 @@ const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
                     className
                 )}
                 ref={ref}
-                value={value} // <--- APLICAR EL VALOR AQUÍ
+                value={value}
                 {...props}
             >
                 {placeholder && (
-                    // Elimina 'selected={!props.value}' de aquí
                     <option value="" disabled>
                         {placeholder}
                     </option>
