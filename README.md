@@ -2,19 +2,64 @@
 
 ---
 
-## TanStack
+# TanStack
 
 - npx degit https://github.com/tanstack/router/examples/react/start-basic-react-query
 
 ---
 
-## Paquetes npm necesarios
+# Paquetes npm necesarios
 
-- npm install -D @types/react @types/react-dom
-- npm install @tanstack/react-router
-- npm install react-icons
-- npm install framer-motion
+## Herramientas base
 - npm install -D typescript
+- npm install -D vite
+- npm install -D vite-tsconfig-paths
+
+## Tailwind y PostCSS
+- npm install -D tailwindcss
+- npm install -D postcss
+- npm install -D autoprefixer
+
+## Tipos para TypeScript
+- npm install -D @types/react
+- npm install -D @types/react-dom
+- npm install -D @types/node
+
+## Linter y formateo
 - npm install -D eslint prettier eslint-config-prettier eslint-plugin-react
+
+## React y núcleo
+- npm install react
+- npm install react-dom
+
+## TanStack Router y Query
+- npm install @tanstack/react-router
+- npm install @tanstack/react-router-devtools
+- npm install @tanstack/react-router-with-query
+- npm install @tanstack/react-start
+- npm install @tanstack/react-query
+- npm install @tanstack/react-query-devtools
+
+## Formularios y validación
+- npm install react-hook-form
+- npm install @hookform/resolvers
+- npm install zod
+
+## Estilos y utilidades visuales
+- npm install tailwind-merge
+- npm install class-variance-authority
+- npm install @headlessui/react
+
+## Íconos, animaciones y UI extra
+- npm install framer-motion
+- npm install lucide-react
+- npm install react-icons
+
+## Subida de archivos y red
+- npm install react-dropzone
+- npm install redaxios
+
+## Generación de PDF
+- npm install @react-pdf/renderer
 
 ---
