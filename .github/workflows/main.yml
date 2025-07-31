@@ -21,4 +21,4 @@ jobs:
             cd temis-frontend
             git pull origin main
             npm install
-            sudo service nginx restart
+            sudo systemctl restart nginx
