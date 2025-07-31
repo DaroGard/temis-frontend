@@ -1,0 +1,31 @@
+const __vite__mapDeps=(i,m=__vite__mapDeps,d=(m.f||(m.f=["assets/InvoiceTable-D4UVyOAx.js","assets/main-q553hwL5.js","assets/main-FjihnNZX.css","assets/tslib.es6-CTYbIaVE.js","assets/proxy-CSjEuuGG.js","assets/triangle-alert-CQNDxSF7.js","assets/createLucideIcon-Dy_6N7RR.js","assets/ellipsis-vertical-CACtdJAj.js","assets/eye-DzOmSnGB.js"])))=>i.map(i=>d[i]);
+import{r as a,j as e,R as j,_ as N}from"./main-q553hwL5.js";import{N as v,F as y}from"./UserFooter-COuxyCJv.js";import{S,B as x}from"./button-b6oUpMHz.js";import{A as P}from"./arrow-left-BTOzgvCD.js";import"./index-uHJQZbEJ.js";import"./createLucideIcon-Dy_6N7RR.js";import"./user-tLYHoncZ.js";const w=({onSearch:c,className:l="",debounceMs:u=300})=>{const[i,d]=a.useState(""),s=a.useRef(null),r=a.useRef(null),o=()=>{var t;d(""),(t=s.current)==null||t.focus()},m=a.useCallback(t=>{t.key==="Escape"&&o()},[]);return a.useEffect(()=>(r.current&&clearTimeout(r.current),r.current=setTimeout(()=>{c(i.trim())},u),()=>{r.current&&clearTimeout(r.current)}),[i,c,u]),e.jsxs("div",{className:`relative ${l}`,children:[e.jsx("input",{ref:s,type:"search","aria-label":"Buscar facturas por número, cliente o caso",placeholder:"Buscar por número, cliente o caso...",value:i,onChange:t=>d(t.target.value),onKeyDown:m,autoComplete:"off",className:`\r
+          w-full\r
+          pl-10\r
+          pr-10\r
+          py-2.5\r
+          rounded-md\r
+          border\r
+          border-gray-300\r
+          text-sm\r
+          text-gray-800\r
+          placeholder:text-gray-400\r
+          shadow-sm\r
+          bg-white\r
+          focus:outline-none\r
+          focus:ring-2\r
+          focus:ring-blue-500/50\r
+          focus:border-blue-500\r
+          transition-all\r
+          duration-200\r
+          ease-in-out\r
+        `}),e.jsx(S,{className:`\r
+          absolute\r
+          left-3\r
+          top-1/2\r
+          -translate-y-1/2\r
+          h-5\r
+          w-5\r
+          text-gray-400\r
+          pointer-events-none\r
+        `,"aria-hidden":"true"})]})},D=j.lazy(()=>N(()=>import("./InvoiceTable-D4UVyOAx.js").then(c=>c.I),__vite__mapDeps([0,1,2,3,4,5,6,7,8]))),C=[{id:3100,client:"Horn",caseNumber:"02215-2018",amount:"1100,00 US$",status:"Pendiente",dueDate:"2024-06-15",issueDate:"2024-05-01",items:[]},{id:3101,client:"Guillermo",caseNumber:"03456-2024",amount:"1300,00 US$",status:"Pagada",dueDate:"2024-06-20",issueDate:"2024-05-01",items:[]},{id:3102,client:"Maria",caseNumber:"01789-2023",amount:"2500,00 US$",status:"Vencida",dueDate:"2023-05-30",issueDate:"2024-05-01",items:[]},{id:3103,client:"David",caseNumber:"02418-2025",amount:"1400,00 US$",status:"Pendiente",dueDate:"2024-07-11",issueDate:"2024-05-01",items:[]},{id:3104,client:"Jose",caseNumber:"06275-2020",amount:"1000,00 US$",status:"Pendiente",dueDate:"2025-08-16",issueDate:"2024-05-01",items:[]},{id:3105,client:"Lucas",caseNumber:"01235-2021",amount:"1500,00 US$",status:"Pagada",dueDate:"2024-07-01",issueDate:"2024-05-01",items:[]},{id:3106,client:"Carla",caseNumber:"01489-2023",amount:"1700,00 US$",status:"Vencida",dueDate:"2023-09-01",issueDate:"2024-05-01",items:[]},{id:3107,client:"Luis",caseNumber:"02011-2019",amount:"2000,00 US$",status:"Pendiente",dueDate:"2025-10-15",issueDate:"2024-05-01",items:[]}],E=function(){const[l,u]=a.useState(""),[i,d]=a.useState(""),[s,r]=a.useState(1),o=5,m=a.useMemo(()=>C.filter(n=>{const g=`${n.client} ${n.caseNumber} ${n.id}`.toLowerCase().includes(l.toLowerCase()),b=i?n.status===i:!0;return g&&b}),[l,i]),t=Math.max(1,Math.ceil(m.length/o));a.useEffect(()=>{s>t&&r(t)},[s,t]);const f=m.slice((s-1)*o,s*o),p=()=>r(n=>Math.max(n-1,1)),h=()=>r(n=>Math.min(n+1,t));return e.jsxs("div",{className:"bg-[#f4f6f8] min-h-screen flex flex-col",children:[e.jsx(v,{}),e.jsx("div",{className:"px-6 pt-4",children:e.jsxs("a",{href:"/dashboard",className:"inline-flex items-center text-sm text-slate-700 hover:text-slate-900 transition-colors",children:[e.jsx(P,{className:"w-4 h-4 mr-2"}),"Regresar"]})}),e.jsxs("main",{className:"flex-grow max-w-7xl mx-auto w-full px-6 sm:px-8 py-8",children:[e.jsxs("header",{className:"flex flex-col md:flex-row justify-between items-center mb-6 gap-4",children:[e.jsxs("div",{children:[e.jsx("h1",{className:"text-3xl font-bold text-black",children:"Facturas"}),e.jsx("p",{className:"text-gray-600 mt-1",children:"Gestiona la facturación de tus casos"})]}),e.jsx(x,{className:"bg-[var(--primary-color)] text-white px-6 py-3 rounded-md shadow-md hover:bg-blue-900 focus:ring-4 focus:ring-blue-600 transition","aria-label":"Crear nueva factura",children:"+ Nueva Factura"})]}),e.jsxs("section",{className:"flex flex-col md:flex-row items-center justify-between gap-4 mb-6",children:[e.jsx(w,{onSearch:u,className:"flex-1 min-w-[280px]"}),e.jsxs("div",{className:"flex gap-3 items-center",children:[e.jsxs("select",{className:"text-sm border border-gray-300 rounded-md px-3 py-2 text-gray-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition","aria-label":"Filtrar facturas por estado",value:i,onChange:n=>{d(n.target.value),r(1)},children:[e.jsx("option",{value:"",children:"Todos los estados"}),e.jsx("option",{value:"Pendiente",children:"Pendiente"}),e.jsx("option",{value:"Pagada",children:"Pagada"}),e.jsx("option",{value:"Vencida",children:"Vencida"})]}),e.jsx(x,{variant:"outline",className:"text-sm px-4 py-2",children:"Filtros"})]})]}),f.length>0?e.jsxs(e.Fragment,{children:[e.jsx(a.Suspense,{fallback:e.jsx("p",{className:"text-center py-10 text-gray-400",children:"Cargando facturas..."}),children:e.jsx(D,{invoices:f})}),e.jsxs("nav",{className:"flex justify-center items-center gap-6 pt-6",role:"navigation","aria-label":"Paginación de facturas",children:[e.jsx(x,{variant:"outline",className:"px-5 py-2 flex items-center gap-1",onClick:p,disabled:s===1,"aria-label":"Página anterior",children:"‹ Anterior"}),e.jsxs("span",{className:"text-sm text-gray-700","aria-live":"polite","aria-atomic":"true",children:["Página ",s," de ",t]}),e.jsx(x,{variant:"outline",className:"px-5 py-2 flex items-center gap-1",onClick:h,disabled:s===t,"aria-label":"Página siguiente",children:"Siguiente ›"})]})]}):e.jsx("p",{className:"text-center text-gray-500 mt-10",children:"No se encontraron facturas con los criterios indicados."})]}),e.jsx(y,{})]})};export{E as component};
