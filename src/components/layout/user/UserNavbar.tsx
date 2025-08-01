@@ -66,17 +66,18 @@ export function Navbar() {
             aria-labelledby="user-menu"
             style={{ transformOrigin: "top right" }}
           >
-            <button
+            <a
+              href="/UserProfilePage"
               className="group flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-blue-500 hover:text-white transition-colors"
               role="menuitem"
-              type="button"
               onClick={() => {
-                setMenuOpen(false);
+                setMenuOpen(false)
               }}
             >
               <UserCircle className="mr-3 h-5 w-5" />
               Perfil
-            </button>
+            </a>
+
             <button
               className="group flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-blue-500 hover:text-white transition-colors"
               role="menuitem"

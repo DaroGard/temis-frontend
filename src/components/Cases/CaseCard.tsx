@@ -91,7 +91,7 @@ const CaseCard: React.FC<CaseCardProps> = ({ caseItem }) =>{
                 Inicio: {formatDate(caseItem.start_date)}
                 <span className="ml-2 text-gray-500 text-xs">({getDaysAgo(caseItem.start_date)})</span>
             </p>
-            {caseItem.end_date && ( // Mostrar fecha de fin si existe
+            {caseItem.end_date && (
                 <p className="flex items-center">
                     <Calendar size={16} className="mr-2 text-gray-500" />
                     Fin: {formatDate(caseItem.end_date)}
