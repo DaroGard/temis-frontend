@@ -40,46 +40,47 @@ const AgendaSection = ({ agendaItems, onViewCalendar }: AgendaSectionProps) => {
     }
   };
   return (
-  <div className="section-card">
-    <div className="section-header">
-      <div className="section-header-left">
-        <Calendar className="section-icon text-green-500" />
-        <h3 className="section-title">Agenda</h3>
+    <div className="section-card">
+      <div className="section-header">
+        <div className="section-header-left">
+          <Calendar className="section-icon text-green-500" />
+          <h3 className="section-title">Agenda</h3>
+        </div>
+        <span className="section-header-right">Organiza tu calendario</span>
       </div>
-      <span className="section-header-right">Organiza tu calendario</span>
-    </div>
-    <div className="space-y-4">
-      {agendaItems.map((item) => (
-        <div key={item.id} className="item-container">
-          <div className="flex items-center justify-between">
-            <div className="flex-1">
-              <div className="item-row-between">
-                <span className="invoice-number-text min-w-[60px]">
-                  {item.time}
-                </span>
-                <span className={`status-badge ${getTypeColor(item.type)}`}>
-                  {getTypeText(item.type)}
-                </span>
-              </div>
-              <div className="text-sm text-slate-600">
-                {item.title}
-              </div>
-              <div className="flex items-center space-x-1 text-sm font-medium text-slate-900">
-                <MapPin className="h-3 w-3" />
-                <span>{item.location}</span>
+      <div className="space-y-4">
+        {agendaItems.map((item) => (
+          <div key={item.id} className="item-container">
+            <div className="flex items-center justify-between">
+              <div className="flex-1">
+                <div className="item-row-between">
+                  <span className="invoice-number-text min-w-[60px]">
+                    {item.time}
+                  </span>
+                  <span className={`status-badge ${getTypeColor(item.type)}`}>
+                    {getTypeText(item.type)}
+                  </span>
+                </div>
+                <div className="text-sm text-slate-600">
+                  {item.title}
+                </div>
+                <div className="flex items-center space-x-1 text-sm font-medium text-slate-900">
+                  <MapPin className="h-3 w-3" />
+                  <span>{item.location}</span>
+                </div>
               </div>
             </div>
-            {/* Opcional: botón de acciones como MoreVertical */}
           </div>
-        </div>
-      ))}
-    </div>
-      <button 
-        onClick={onViewCalendar}
-        className="w-full mt-6 bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition-colors font-medium">
+        ))}
+      </div>
+      <a href="/CalendarPage">
+        <button
+          onClick={onViewCalendar}
+          className="w-full mt-6 bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition-colors font-medium">
           Ver calendario completo
-      </button>
-  </div>
+        </button>
+      </a>
+    </div>
   );
 };
 

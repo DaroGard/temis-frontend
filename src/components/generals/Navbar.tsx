@@ -89,7 +89,7 @@ const Navbar = ({ onNavigateHome, onNavigateAbout, onNavigateServices }: NavbarP
                   }
                 }}
               />
-              <NavLink to="/contacto" label="Contacto" />
+              <NavLink to="/ContactPage" label="Contacto" />
             </div>
           </div>
           {/* Iniciar sesión */}

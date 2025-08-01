@@ -14,7 +14,10 @@ import { Route as NewCaseRouteImport } from './routes/newCase'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as CasesRouteImport } from './routes/cases'
+import { Route as UserProfilePageRouteImport } from './routes/UserProfilePage'
 import { Route as InvoicesPageRouteImport } from './routes/InvoicesPage'
+import { Route as ContactPageRouteImport } from './routes/ContactPage'
+import { Route as CalendarPageRouteImport } from './routes/CalendarPage'
 import { Route as IndexRouteImport } from './routes/index'
 
 const SignupRoute = SignupRouteImport.update({
@@ -42,9 +45,24 @@ const CasesRoute = CasesRouteImport.update({
   path: '/cases',
   getParentRoute: () => rootRouteImport,
 } as any)
+const UserProfilePageRoute = UserProfilePageRouteImport.update({
+  id: '/UserProfilePage',
+  path: '/UserProfilePage',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const InvoicesPageRoute = InvoicesPageRouteImport.update({
   id: '/InvoicesPage',
   path: '/InvoicesPage',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ContactPageRoute = ContactPageRouteImport.update({
+  id: '/ContactPage',
+  path: '/ContactPage',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CalendarPageRoute = CalendarPageRouteImport.update({
+  id: '/CalendarPage',
+  path: '/CalendarPage',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -55,7 +73,10 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/CalendarPage': typeof CalendarPageRoute
+  '/ContactPage': typeof ContactPageRoute
   '/InvoicesPage': typeof InvoicesPageRoute
+  '/UserProfilePage': typeof UserProfilePageRoute
   '/cases': typeof CasesRoute
   '/dashboard': typeof DashboardRoute
   '/login': typeof LoginRoute
@@ -64,7 +85,10 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/CalendarPage': typeof CalendarPageRoute
+  '/ContactPage': typeof ContactPageRoute
   '/InvoicesPage': typeof InvoicesPageRoute
+  '/UserProfilePage': typeof UserProfilePageRoute
   '/cases': typeof CasesRoute
   '/dashboard': typeof DashboardRoute
   '/login': typeof LoginRoute
@@ -74,7 +98,10 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/CalendarPage': typeof CalendarPageRoute
+  '/ContactPage': typeof ContactPageRoute
   '/InvoicesPage': typeof InvoicesPageRoute
+  '/UserProfilePage': typeof UserProfilePageRoute
   '/cases': typeof CasesRoute
   '/dashboard': typeof DashboardRoute
   '/login': typeof LoginRoute
@@ -85,7 +112,10 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/CalendarPage'
+    | '/ContactPage'
     | '/InvoicesPage'
+    | '/UserProfilePage'
     | '/cases'
     | '/dashboard'
     | '/login'
@@ -94,7 +124,10 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/CalendarPage'
+    | '/ContactPage'
     | '/InvoicesPage'
+    | '/UserProfilePage'
     | '/cases'
     | '/dashboard'
     | '/login'
@@ -103,7 +136,10 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/CalendarPage'
+    | '/ContactPage'
     | '/InvoicesPage'
+    | '/UserProfilePage'
     | '/cases'
     | '/dashboard'
     | '/login'
@@ -113,7 +149,10 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  CalendarPageRoute: typeof CalendarPageRoute
+  ContactPageRoute: typeof ContactPageRoute
   InvoicesPageRoute: typeof InvoicesPageRoute
+  UserProfilePageRoute: typeof UserProfilePageRoute
   CasesRoute: typeof CasesRoute
   DashboardRoute: typeof DashboardRoute
   LoginRoute: typeof LoginRoute
@@ -158,11 +197,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CasesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/UserProfilePage': {
+      id: '/UserProfilePage'
+      path: '/UserProfilePage'
+      fullPath: '/UserProfilePage'
+      preLoaderRoute: typeof UserProfilePageRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/InvoicesPage': {
       id: '/InvoicesPage'
       path: '/InvoicesPage'
       fullPath: '/InvoicesPage'
       preLoaderRoute: typeof InvoicesPageRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ContactPage': {
+      id: '/ContactPage'
+      path: '/ContactPage'
+      fullPath: '/ContactPage'
+      preLoaderRoute: typeof ContactPageRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/CalendarPage': {
+      id: '/CalendarPage'
+      path: '/CalendarPage'
+      fullPath: '/CalendarPage'
+      preLoaderRoute: typeof CalendarPageRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -177,7 +237,10 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  CalendarPageRoute: CalendarPageRoute,
+  ContactPageRoute: ContactPageRoute,
   InvoicesPageRoute: InvoicesPageRoute,
+  UserProfilePageRoute: UserProfilePageRoute,
   CasesRoute: CasesRoute,
   DashboardRoute: DashboardRoute,
   LoginRoute: LoginRoute,

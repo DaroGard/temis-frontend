@@ -40,7 +40,6 @@ const RecentActivity = ({ activities }: RecentActivityProps) => {
   };
 
   const formatTimestamp = (timestamp: string) => {
-    // Simple format for demo - in real app, use proper date formatting
     if (timestamp.includes('hora')) {
       return timestamp;
     }

@@ -7,7 +7,6 @@ import RecentActivity from './RecentActivity';
 import { Navbar } from '~/components/layout/user/UserNavbar';
 import Footer from '~/components/layout/user/UserFooter';
 
-// Mock data - Replace with actual API calls
 const mockData = {
   user: {
     id: 1,
@@ -100,30 +99,25 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
-  // Simulate data loading
   useEffect(() => {
-    // Here you would fetch real data from your API
     // fetchDashboardData();
   }, []);
 
   const handleSearch = (query: string) => {
     setSearchQuery(query);
-    // Implement search logic here
+    // logica
     console.log('Searching for:', query);
   };
 
   const handleViewAllCases = () => {
-    // Navigate to cases page
     console.log('Navigate to all cases');
   };
 
   const handleViewAllInvoices = () => {
-    // Navigate to invoices page
     console.log('Navigate to all invoices');
   };
 
   const handleViewCalendar = () => {
-    // Navigate to calendar page
     console.log('Navigate to calendar');
   };
 
@@ -148,7 +142,6 @@ const Dashboard = () => {
 
       {/* Main Content */}
       <main className="container mx-auto px-6 py-8">
-        {/* Welcome Section */}
         <div className="mb-8">
           <h1 className="text-3xl font-serif font-bold text-slate-900 mb-2">
             Bienvenido(a) Abogado
