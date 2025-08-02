@@ -54,6 +54,7 @@
 - npm install framer-motion
 - npm install lucide-react
 - npm install react-icons
+- npm install @headlessui/react
 
 ## Subida de archivos y red
 - npm install react-dropzone
