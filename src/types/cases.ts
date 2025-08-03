@@ -1,4 +1,3 @@
-
 export interface LegalCase {
   id: number;
   case_number: string;
@@ -9,9 +8,9 @@ export interface LegalCase {
   account_id: number;
   client_id: number;
   description: string;
-  priority_level: 'low' | 'medium' | 'high';
+  priority_level: 'baja' | 'media' | 'alta';
   notes: string;
-  status: 'active' | 'pending' | 'urgent' | 'closed';
+  status: 'activo' | 'pendiente' | 'urgente' | 'cerrado';
   client?: Client;
 }
 
@@ -31,5 +30,3 @@ export interface CasesMetrics {
   urgent: number;
   pending: number;
 }
-
-
