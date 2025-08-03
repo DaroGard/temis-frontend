@@ -18,6 +18,7 @@ import { Route as UserProfilePageRouteImport } from './routes/UserProfilePage'
 import { Route as InvoicesPageRouteImport } from './routes/InvoicesPage'
 import { Route as ContactPageRouteImport } from './routes/ContactPage'
 import { Route as CalendarPageRouteImport } from './routes/CalendarPage'
+import { Route as CaseIdRouteImport } from './routes/$caseId'
 import { Route as IndexRouteImport } from './routes/index'
 
 const SignupRoute = SignupRouteImport.update({
@@ -65,6 +66,11 @@ const CalendarPageRoute = CalendarPageRouteImport.update({
   path: '/CalendarPage',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CaseIdRoute = CaseIdRouteImport.update({
+  id: '/$caseId',
+  path: '/$caseId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -73,6 +79,7 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/$caseId': typeof CaseIdRoute
   '/CalendarPage': typeof CalendarPageRoute
   '/ContactPage': typeof ContactPageRoute
   '/InvoicesPage': typeof InvoicesPageRoute
@@ -85,6 +92,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/$caseId': typeof CaseIdRoute
   '/CalendarPage': typeof CalendarPageRoute
   '/ContactPage': typeof ContactPageRoute
   '/InvoicesPage': typeof InvoicesPageRoute
@@ -98,6 +106,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/$caseId': typeof CaseIdRoute
   '/CalendarPage': typeof CalendarPageRoute
   '/ContactPage': typeof ContactPageRoute
   '/InvoicesPage': typeof InvoicesPageRoute
@@ -112,6 +121,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/$caseId'
     | '/CalendarPage'
     | '/ContactPage'
     | '/InvoicesPage'
@@ -124,6 +134,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/$caseId'
     | '/CalendarPage'
     | '/ContactPage'
     | '/InvoicesPage'
@@ -136,6 +147,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/$caseId'
     | '/CalendarPage'
     | '/ContactPage'
     | '/InvoicesPage'
@@ -149,6 +161,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  CaseIdRoute: typeof CaseIdRoute
   CalendarPageRoute: typeof CalendarPageRoute
   ContactPageRoute: typeof ContactPageRoute
   InvoicesPageRoute: typeof InvoicesPageRoute
@@ -225,6 +238,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CalendarPageRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/$caseId': {
+      id: '/$caseId'
+      path: '/$caseId'
+      fullPath: '/$caseId'
+      preLoaderRoute: typeof CaseIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -237,6 +257,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  CaseIdRoute: CaseIdRoute,
   CalendarPageRoute: CalendarPageRoute,
   ContactPageRoute: ContactPageRoute,
   InvoicesPageRoute: InvoicesPageRoute,

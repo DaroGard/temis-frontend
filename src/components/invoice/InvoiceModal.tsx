@@ -9,6 +9,13 @@ interface Props {
   onClose: () => void;
 }
 
+const formatCurrency = (value: number) =>
+  value.toLocaleString('es-ES', {
+    style: 'currency',
+    currency: 'USD',
+    minimumFractionDigits: 2,
+  });
+
 export const InvoiceModal: React.FC<Props> = ({ invoice, onClose }) => {
   const modalRef = useRef<HTMLDivElement>(null);
 
@@ -28,7 +35,8 @@ export const InvoiceModal: React.FC<Props> = ({ invoice, onClose }) => {
 
   if (!invoice) return null;
 
-  const safeAmount = Number(invoice.amount) || 0;
+  const totalCalculated =
+    invoice.items?.reduce((acc, item) => acc + (Number(item.hours) || 0) * (Number(item.rate) || 0), 0) ?? 0;
 
   return (
     <div
@@ -72,10 +80,7 @@ export const InvoiceModal: React.FC<Props> = ({ invoice, onClose }) => {
 
           {/* Ítems */}
           <section aria-labelledby="items-section" className="mb-6">
-            <h3
-              id="items-section"
-              className="text-xl font-semibold mb-3 text-black"
-            >
+            <h3 id="items-section" className="text-xl font-semibold mb-3 text-black">
               Itemización del Gasto
             </h3>
 
@@ -103,10 +108,10 @@ export const InvoiceModal: React.FC<Props> = ({ invoice, onClose }) => {
               <p className="text-sm italic text-gray-500">No hay gastos registrados.</p>
             )}
 
-            {/* Total */}
+            {/* Total calculado */}
             <div className="mt-6 bg-gray-100 rounded-md p-4 flex justify-between items-center text-black">
               <p className="text-lg font-semibold">Total</p>
-              <p className="text-2xl font-bold">{safeAmount.toFixed(2)} US$</p>
+              <p className="text-2xl font-bold">{formatCurrency(totalCalculated)}</p>
             </div>
           </section>
 

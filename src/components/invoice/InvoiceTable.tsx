@@ -48,55 +48,57 @@ const InvoiceRow = memo(
     onDuplicate: (inv: Invoice) => void;
     onMarkPaid: (inv: Invoice) => void;
     onViewHistory: (inv: Invoice) => void;
-  }) => (
-    <tr
-      key={inv.id}
-      className="border-t border-gray-100 hover:bg-blue-50 transition-colors duration-150 focus-within:bg-blue-100"
-      tabIndex={0}
-      aria-label={`Factura número ${inv.id} para cliente ${inv.client}`}
-      onKeyDown={(e) => e.key === 'Enter' && onSelect(inv)}
-    >
-      <td className="px-5 py-4 font-semibold">{inv.id}</td>
-      <td className="px-5 py-4">{inv.client}</td>
-      <td className="px-5 py-4">{inv.caseNumber}</td>
-      <td className="px-5 py-4">{formatCurrency(Number(inv.amount) || 0)}</td>
-      <td className="px-5 py-4">
-        <StatusBadge status={inv.status} />
-      </td>
-      <td className="px-5 py-4">{formatDate(inv.dueDate)}</td>
-      <td className="px-5 py-4 text-center">
-        <div className="flex items-center justify-center gap-3">
-          <button
-            type="button"
-            onClick={() => onSelect(inv)}
-            className="inline-flex items-center gap-1 text-sm text-links hover:underline transition focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-links rounded"
-            aria-label={`Ver detalles de factura #${inv.id}`}
-          >
-            <Eye size={16} aria-hidden="true" /> Ver
-          </button>
+  }) => {
+    const total = inv.items?.reduce((acc, item) => acc + (item.hours * item.rate), 0) ?? 0;
 
-          <button
-            type="button"
-            onClick={() => onDownloadPdf(inv)}
-            className="p-1 text-gray-500 hover:text-gray-800 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-gray-400 rounded"
-            aria-label={`Descargar factura #${inv.id} en PDF`}
-          >
-            <Download size={18} aria-hidden="true" />
-          </button>
+    return (
+      <tr
+        key={inv.id}
+        className="border-t border-gray-100 hover:bg-blue-50 transition-colors duration-150 focus-within:bg-blue-100"
+        tabIndex={0}
+        aria-label={`Factura número ${inv.id} para cliente ${inv.client}`}
+        onKeyDown={(e) => e.key === 'Enter' && onSelect(inv)}
+      >
+        <td className="px-5 py-4 font-semibold">{inv.id}</td>
+        <td className="px-5 py-4">{inv.client}</td>
+        <td className="px-5 py-4">{inv.caseNumber}</td>
+        <td className="px-5 py-4">{formatCurrency(total)}</td>
+        <td className="px-5 py-4">
+          <StatusBadge status={inv.status} />
+        </td>
+        <td className="px-5 py-4">{formatDate(inv.dueDate)}</td>
+        <td className="px-5 py-4 text-center">
+          <div className="flex items-center justify-center gap-3">
+            <button
+              type="button"
+              onClick={() => onSelect(inv)}
+              className="inline-flex items-center gap-1 text-sm text-links hover:underline transition focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-links rounded"
+              aria-label={`Ver detalles de factura #${inv.id}`}
+            >
+              <Eye size={16} aria-hidden="true" /> Ver
+            </button>
 
-          <InvoiceActionsMenu
-            invoice={inv}
-            onEdit={onEdit}
-            onDelete={onDelete}
-            onSendEmail={onSendEmail}
-            onDuplicate={onDuplicate}
-            onMarkPaid={onMarkPaid}
-            onViewHistory={onViewHistory}
-          />
-        </div>
-      </td>
-    </tr>
-  )
+            <button
+              type="button"
+              onClick={() => onDownloadPdf(inv)}
+              className="p-1 text-gray-500 hover:text-gray-800 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-gray-400 rounded"
+              aria-label={`Descargar factura #${inv.id} en PDF`}
+            >
+              <Download size={18} aria-hidden="true" />
+            </button>
+
+            <InvoiceActionsMenu
+              invoice={inv}
+              onEdit={onEdit}
+              onDelete={onDelete}
+              onSendEmail={onSendEmail}
+              onMarkPaid={onMarkPaid}
+            />
+          </div>
+        </td>
+      </tr>
+    );
+  }
 );
 
 interface Props {
