@@ -31,15 +31,11 @@ const mockUser = {
 export function UserProfile() {
   return (
     <div className="relative min-h-screen w-full">
-      {/* Fondo con imagen que cubre toda la pantalla */}
       <div
         className="fixed inset-0 bg-center bg-cover bg-no-repeat z-[-1]"
         style={{ backgroundImage: `url(${Background})` }}
       />
-      {/* Overlay para oscurecer el fondo */}
       <div className="fixed inset-0 bg-black opacity-30 z-[-1]" />
-
-      {/* Contenido */}
       <main className="relative max-w-5xl mx-auto my-10 px-6 sm:px-8 py-10 rounded-xl shadow-md border border-slate-200 bg-white bg-opacity-90 text-slate-900 space-y-8 overflow-hidden">
         <UserAvatarHeader
           name={mockUser.name}

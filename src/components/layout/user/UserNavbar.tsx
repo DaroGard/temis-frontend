@@ -77,18 +77,19 @@ export function Navbar() {
               <UserCircle className="mr-3 h-5 w-5" />
               Perfil
             </a>
-
-            <button
-              className="group flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-blue-500 hover:text-white transition-colors"
-              role="menuitem"
-              type="button"
-              onClick={() => {
-                setMenuOpen(false);
-              }}
-            >
-              <FileText className="mr-3 h-5 w-5" />
-              Plan
-            </button>
+            <a href="/pricingPage">
+              <button
+                className="group flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-blue-500 hover:text-white transition-colors"
+                role="menuitem"
+                type="button"
+                onClick={() => {
+                  setMenuOpen(false);
+                }}
+              >
+                <FileText className="mr-3 h-5 w-5" />
+                Plan
+              </button>
+            </a>
 
             <div className="border-t border-gray-200 my-1" />
 
@@ -109,3 +110,5 @@ export function Navbar() {
     </header>
   );
 }
+
+export default Navbar;

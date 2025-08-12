@@ -6,7 +6,9 @@ import Footer from '~/components/layout/user/UserFooter'
 import { ArrowLeft, Calendar, FileText, User } from 'lucide-react'
 import { Button } from '~/components/generals/button'
 import { motion } from 'framer-motion'
-import CaseEditModal from '~/components/Cases/CaseDetail/CaseEditModal' 
+import CaseEditModal from '~/components/Cases/CaseDetail/CaseEditModal'
+import { CaseFilesCard } from './CaseFilesCard'
+import type { CaseFile } from '~/components/Cases/CaseDetail/CaseFilesCard'
 
 const mockCasesData: LegalCase[] = [
   {
@@ -103,6 +105,33 @@ const mockCasesData: LegalCase[] = [
   },
 ]
 
+const mockFiles: CaseFile[] = [
+  {
+    id: "1",
+    name: "Contrato.pdf",
+    type: "pdf",
+    size: 2456780,
+    uploadedAt: new Date(2025, 7, 10, 14, 30),
+    url: "prueba1",
+  },
+  {
+    id: "2",
+    name: "Evidencia.jpg",
+    type: "jpg",
+    size: 1890000,
+    uploadedAt: new Date(2025, 7, 9, 9, 15),
+    url: "prueba3",
+  },
+  {
+    id: "3",
+    name: "Informe.docx",
+    type: "docx",
+    size: 3200000,
+    uploadedAt: new Date(2025, 7, 8, 18, 45),
+    url: "prueba2",
+  },
+];
+
 export default function CaseDetailPage() {
   const params = useParams({ from: '/$caseId' })
   const caseId = params.caseId as string | undefined
@@ -124,7 +153,7 @@ export default function CaseDetailPage() {
   if (!caseItem) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50">
-        <p className="p-6 text-slate-600 text-lg">Caso no encontrado</p>
+        <p className="p-6 text-slate-600 text-lg">Archivo no encontrado</p>
       </div>
     )
   }
@@ -184,10 +213,10 @@ export default function CaseDetailPage() {
                   <span
                     className={
                       caseItem.priority_level === 'alta'
-                        ? 'text-red-600 font-bold'
+                        ? 'text-warning font-bold'
                         : caseItem.priority_level === 'media'
-                        ? 'text-yellow-600 font-semibold'
-                        : 'text-green-600 font-semibold'
+                          ? 'text-pending font-semibold'
+                          : 'text-success font-semibold'
                     }
                   >
                     {caseItem.priority_level.charAt(0).toUpperCase() + caseItem.priority_level.slice(1)}
@@ -202,11 +231,6 @@ export default function CaseDetailPage() {
 
             <div>
               <p className="text-gray-700">{caseItem.description}</p>
-              {caseItem.notes && (
-                <div className="bg-slate-100 p-4 rounded-md mt-6 text-slate-600 text-sm border border-slate-300 shadow-sm">
-                  <strong>Notas:</strong> {caseItem.notes}
-                </div>
-              )}
             </div>
           </div>
         </section>
@@ -236,6 +260,22 @@ export default function CaseDetailPage() {
               <span className="font-semibold">DNI:</span> {caseItem.client?.dni}
             </p>
           </div>
+        </section>
+
+        {caseItem.notes && caseItem.notes.trim() !== "" && (
+          <section className="bg-white rounded-lg shadow-md p-8">
+            <h2 className="text-2xl font-semibold text-slate-800 mb-6 border-b pb-2 flex items-center gap-2">
+              <FileText className="w-6 h-6 text-slate-600" />
+              Notas
+            </h2>
+            <div className="bg-gradient-to-r from-slate-50 to-slate-100 border border-slate-300 rounded-lg shadow-sm p-6 max-h-60 overflow-y-auto whitespace-pre-line text-slate-700 leading-relaxed">
+              {caseItem.notes}
+            </div>
+          </section>
+        )}
+
+        <section className="bg-white rounded-lg shadow-md p-8">
+          <CaseFilesCard files={mockFiles} />
         </section>
 
         <div className="flex gap-4 justify-start">

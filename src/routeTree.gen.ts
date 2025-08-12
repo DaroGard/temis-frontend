@@ -10,9 +10,11 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SignupRouteImport } from './routes/signup'
+import { Route as PricingPageRouteImport } from './routes/pricingPage'
 import { Route as NewCaseRouteImport } from './routes/newCase'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as CheckoutPageRouteImport } from './routes/checkoutPage'
 import { Route as CasesRouteImport } from './routes/cases'
 import { Route as UserProfilePageRouteImport } from './routes/UserProfilePage'
 import { Route as InvoicesPageRouteImport } from './routes/InvoicesPage'
@@ -24,6 +26,11 @@ import { Route as IndexRouteImport } from './routes/index'
 const SignupRoute = SignupRouteImport.update({
   id: '/signup',
   path: '/signup',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PricingPageRoute = PricingPageRouteImport.update({
+  id: '/pricingPage',
+  path: '/pricingPage',
   getParentRoute: () => rootRouteImport,
 } as any)
 const NewCaseRoute = NewCaseRouteImport.update({
@@ -39,6 +46,11 @@ const LoginRoute = LoginRouteImport.update({
 const DashboardRoute = DashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CheckoutPageRoute = CheckoutPageRouteImport.update({
+  id: '/checkoutPage',
+  path: '/checkoutPage',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CasesRoute = CasesRouteImport.update({
@@ -85,9 +97,11 @@ export interface FileRoutesByFullPath {
   '/InvoicesPage': typeof InvoicesPageRoute
   '/UserProfilePage': typeof UserProfilePageRoute
   '/cases': typeof CasesRoute
+  '/checkoutPage': typeof CheckoutPageRoute
   '/dashboard': typeof DashboardRoute
   '/login': typeof LoginRoute
   '/newCase': typeof NewCaseRoute
+  '/pricingPage': typeof PricingPageRoute
   '/signup': typeof SignupRoute
 }
 export interface FileRoutesByTo {
@@ -98,9 +112,11 @@ export interface FileRoutesByTo {
   '/InvoicesPage': typeof InvoicesPageRoute
   '/UserProfilePage': typeof UserProfilePageRoute
   '/cases': typeof CasesRoute
+  '/checkoutPage': typeof CheckoutPageRoute
   '/dashboard': typeof DashboardRoute
   '/login': typeof LoginRoute
   '/newCase': typeof NewCaseRoute
+  '/pricingPage': typeof PricingPageRoute
   '/signup': typeof SignupRoute
 }
 export interface FileRoutesById {
@@ -112,9 +128,11 @@ export interface FileRoutesById {
   '/InvoicesPage': typeof InvoicesPageRoute
   '/UserProfilePage': typeof UserProfilePageRoute
   '/cases': typeof CasesRoute
+  '/checkoutPage': typeof CheckoutPageRoute
   '/dashboard': typeof DashboardRoute
   '/login': typeof LoginRoute
   '/newCase': typeof NewCaseRoute
+  '/pricingPage': typeof PricingPageRoute
   '/signup': typeof SignupRoute
 }
 export interface FileRouteTypes {
@@ -127,9 +145,11 @@ export interface FileRouteTypes {
     | '/InvoicesPage'
     | '/UserProfilePage'
     | '/cases'
+    | '/checkoutPage'
     | '/dashboard'
     | '/login'
     | '/newCase'
+    | '/pricingPage'
     | '/signup'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -140,9 +160,11 @@ export interface FileRouteTypes {
     | '/InvoicesPage'
     | '/UserProfilePage'
     | '/cases'
+    | '/checkoutPage'
     | '/dashboard'
     | '/login'
     | '/newCase'
+    | '/pricingPage'
     | '/signup'
   id:
     | '__root__'
@@ -153,9 +175,11 @@ export interface FileRouteTypes {
     | '/InvoicesPage'
     | '/UserProfilePage'
     | '/cases'
+    | '/checkoutPage'
     | '/dashboard'
     | '/login'
     | '/newCase'
+    | '/pricingPage'
     | '/signup'
   fileRoutesById: FileRoutesById
 }
@@ -167,9 +191,11 @@ export interface RootRouteChildren {
   InvoicesPageRoute: typeof InvoicesPageRoute
   UserProfilePageRoute: typeof UserProfilePageRoute
   CasesRoute: typeof CasesRoute
+  CheckoutPageRoute: typeof CheckoutPageRoute
   DashboardRoute: typeof DashboardRoute
   LoginRoute: typeof LoginRoute
   NewCaseRoute: typeof NewCaseRoute
+  PricingPageRoute: typeof PricingPageRoute
   SignupRoute: typeof SignupRoute
 }
 
@@ -180,6 +206,13 @@ declare module '@tanstack/react-router' {
       path: '/signup'
       fullPath: '/signup'
       preLoaderRoute: typeof SignupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pricingPage': {
+      id: '/pricingPage'
+      path: '/pricingPage'
+      fullPath: '/pricingPage'
+      preLoaderRoute: typeof PricingPageRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/newCase': {
@@ -201,6 +234,13 @@ declare module '@tanstack/react-router' {
       path: '/dashboard'
       fullPath: '/dashboard'
       preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/checkoutPage': {
+      id: '/checkoutPage'
+      path: '/checkoutPage'
+      fullPath: '/checkoutPage'
+      preLoaderRoute: typeof CheckoutPageRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/cases': {
@@ -263,9 +303,11 @@ const rootRouteChildren: RootRouteChildren = {
   InvoicesPageRoute: InvoicesPageRoute,
   UserProfilePageRoute: UserProfilePageRoute,
   CasesRoute: CasesRoute,
+  CheckoutPageRoute: CheckoutPageRoute,
   DashboardRoute: DashboardRoute,
   LoginRoute: LoginRoute,
   NewCaseRoute: NewCaseRoute,
+  PricingPageRoute: PricingPageRoute,
   SignupRoute: SignupRoute,
 }
 export const routeTree = rootRouteImport
