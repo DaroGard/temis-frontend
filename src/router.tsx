@@ -3,18 +3,22 @@ import { createRouter as createTanStackRouter } from '@tanstack/react-router'
 import { routerWithQueryClient } from '@tanstack/react-router-with-query'
 import { routeTree } from './routeTree.gen'
 
-// NOTE: Most of the integration code found here is experimental and will
-// definitely end up in a more streamlined API in the future. This is just
-// to show what's possible with the current APIs.
-
 export function createRouter() {
   const queryClient = new QueryClient()
+
+  //  Componente 404 
+  const NotFound = () => (
+    <div className="text-center text-red-600 text-2xl py-20">
+      404 - Página no encontrada
+    </div>
+  )
 
   return routerWithQueryClient(
     createTanStackRouter({
       routeTree,
       context: { queryClient },
       defaultPreload: 'intent',
+      defaultNotFoundComponent: NotFound, 
     }),
     queryClient,
   )
