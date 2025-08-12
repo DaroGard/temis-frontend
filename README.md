@@ -24,9 +24,11 @@
 - npm install -D @types/react
 - npm install -D @types/react-dom
 - npm install -D @types/node
+- npm install -D @types/date-fns
 
 ## Linter y formateo
 - npm install -D eslint prettier eslint-config-prettier eslint-plugin-react
+- npm install date-fns
 
 ## React y núcleo
 - npm install react
