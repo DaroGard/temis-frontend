@@ -9,8 +9,80 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SignupRouteImport } from './routes/signup'
+import { Route as PricingPageRouteImport } from './routes/pricingPage'
+import { Route as NewCaseRouteImport } from './routes/newCase'
+import { Route as LoginRouteImport } from './routes/login'
+import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as CheckoutPageRouteImport } from './routes/checkoutPage'
+import { Route as CasesRouteImport } from './routes/cases'
+import { Route as UserProfilePageRouteImport } from './routes/UserProfilePage'
+import { Route as InvoicesPageRouteImport } from './routes/InvoicesPage'
+import { Route as ContactPageRouteImport } from './routes/ContactPage'
+import { Route as CalendarPageRouteImport } from './routes/CalendarPage'
+import { Route as CaseIdRouteImport } from './routes/$caseId'
 import { Route as IndexRouteImport } from './routes/index'
 
+const SignupRoute = SignupRouteImport.update({
+  id: '/signup',
+  path: '/signup',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PricingPageRoute = PricingPageRouteImport.update({
+  id: '/pricingPage',
+  path: '/pricingPage',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NewCaseRoute = NewCaseRouteImport.update({
+  id: '/newCase',
+  path: '/newCase',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DashboardRoute = DashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CheckoutPageRoute = CheckoutPageRouteImport.update({
+  id: '/checkoutPage',
+  path: '/checkoutPage',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CasesRoute = CasesRouteImport.update({
+  id: '/cases',
+  path: '/cases',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const UserProfilePageRoute = UserProfilePageRouteImport.update({
+  id: '/UserProfilePage',
+  path: '/UserProfilePage',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InvoicesPageRoute = InvoicesPageRouteImport.update({
+  id: '/InvoicesPage',
+  path: '/InvoicesPage',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ContactPageRoute = ContactPageRouteImport.update({
+  id: '/ContactPage',
+  path: '/ContactPage',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CalendarPageRoute = CalendarPageRouteImport.update({
+  id: '/CalendarPage',
+  path: '/CalendarPage',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CaseIdRoute = CaseIdRouteImport.update({
+  id: '/$caseId',
+  path: '/$caseId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -19,28 +91,200 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/$caseId': typeof CaseIdRoute
+  '/CalendarPage': typeof CalendarPageRoute
+  '/ContactPage': typeof ContactPageRoute
+  '/InvoicesPage': typeof InvoicesPageRoute
+  '/UserProfilePage': typeof UserProfilePageRoute
+  '/cases': typeof CasesRoute
+  '/checkoutPage': typeof CheckoutPageRoute
+  '/dashboard': typeof DashboardRoute
+  '/login': typeof LoginRoute
+  '/newCase': typeof NewCaseRoute
+  '/pricingPage': typeof PricingPageRoute
+  '/signup': typeof SignupRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/$caseId': typeof CaseIdRoute
+  '/CalendarPage': typeof CalendarPageRoute
+  '/ContactPage': typeof ContactPageRoute
+  '/InvoicesPage': typeof InvoicesPageRoute
+  '/UserProfilePage': typeof UserProfilePageRoute
+  '/cases': typeof CasesRoute
+  '/checkoutPage': typeof CheckoutPageRoute
+  '/dashboard': typeof DashboardRoute
+  '/login': typeof LoginRoute
+  '/newCase': typeof NewCaseRoute
+  '/pricingPage': typeof PricingPageRoute
+  '/signup': typeof SignupRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/$caseId': typeof CaseIdRoute
+  '/CalendarPage': typeof CalendarPageRoute
+  '/ContactPage': typeof ContactPageRoute
+  '/InvoicesPage': typeof InvoicesPageRoute
+  '/UserProfilePage': typeof UserProfilePageRoute
+  '/cases': typeof CasesRoute
+  '/checkoutPage': typeof CheckoutPageRoute
+  '/dashboard': typeof DashboardRoute
+  '/login': typeof LoginRoute
+  '/newCase': typeof NewCaseRoute
+  '/pricingPage': typeof PricingPageRoute
+  '/signup': typeof SignupRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/$caseId'
+    | '/CalendarPage'
+    | '/ContactPage'
+    | '/InvoicesPage'
+    | '/UserProfilePage'
+    | '/cases'
+    | '/checkoutPage'
+    | '/dashboard'
+    | '/login'
+    | '/newCase'
+    | '/pricingPage'
+    | '/signup'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/$caseId'
+    | '/CalendarPage'
+    | '/ContactPage'
+    | '/InvoicesPage'
+    | '/UserProfilePage'
+    | '/cases'
+    | '/checkoutPage'
+    | '/dashboard'
+    | '/login'
+    | '/newCase'
+    | '/pricingPage'
+    | '/signup'
+  id:
+    | '__root__'
+    | '/'
+    | '/$caseId'
+    | '/CalendarPage'
+    | '/ContactPage'
+    | '/InvoicesPage'
+    | '/UserProfilePage'
+    | '/cases'
+    | '/checkoutPage'
+    | '/dashboard'
+    | '/login'
+    | '/newCase'
+    | '/pricingPage'
+    | '/signup'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  CaseIdRoute: typeof CaseIdRoute
+  CalendarPageRoute: typeof CalendarPageRoute
+  ContactPageRoute: typeof ContactPageRoute
+  InvoicesPageRoute: typeof InvoicesPageRoute
+  UserProfilePageRoute: typeof UserProfilePageRoute
+  CasesRoute: typeof CasesRoute
+  CheckoutPageRoute: typeof CheckoutPageRoute
+  DashboardRoute: typeof DashboardRoute
+  LoginRoute: typeof LoginRoute
+  NewCaseRoute: typeof NewCaseRoute
+  PricingPageRoute: typeof PricingPageRoute
+  SignupRoute: typeof SignupRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/signup': {
+      id: '/signup'
+      path: '/signup'
+      fullPath: '/signup'
+      preLoaderRoute: typeof SignupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pricingPage': {
+      id: '/pricingPage'
+      path: '/pricingPage'
+      fullPath: '/pricingPage'
+      preLoaderRoute: typeof PricingPageRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/newCase': {
+      id: '/newCase'
+      path: '/newCase'
+      fullPath: '/newCase'
+      preLoaderRoute: typeof NewCaseRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard': {
+      id: '/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/checkoutPage': {
+      id: '/checkoutPage'
+      path: '/checkoutPage'
+      fullPath: '/checkoutPage'
+      preLoaderRoute: typeof CheckoutPageRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cases': {
+      id: '/cases'
+      path: '/cases'
+      fullPath: '/cases'
+      preLoaderRoute: typeof CasesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/UserProfilePage': {
+      id: '/UserProfilePage'
+      path: '/UserProfilePage'
+      fullPath: '/UserProfilePage'
+      preLoaderRoute: typeof UserProfilePageRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/InvoicesPage': {
+      id: '/InvoicesPage'
+      path: '/InvoicesPage'
+      fullPath: '/InvoicesPage'
+      preLoaderRoute: typeof InvoicesPageRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ContactPage': {
+      id: '/ContactPage'
+      path: '/ContactPage'
+      fullPath: '/ContactPage'
+      preLoaderRoute: typeof ContactPageRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/CalendarPage': {
+      id: '/CalendarPage'
+      path: '/CalendarPage'
+      fullPath: '/CalendarPage'
+      preLoaderRoute: typeof CalendarPageRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/$caseId': {
+      id: '/$caseId'
+      path: '/$caseId'
+      fullPath: '/$caseId'
+      preLoaderRoute: typeof CaseIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -53,6 +297,18 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  CaseIdRoute: CaseIdRoute,
+  CalendarPageRoute: CalendarPageRoute,
+  ContactPageRoute: ContactPageRoute,
+  InvoicesPageRoute: InvoicesPageRoute,
+  UserProfilePageRoute: UserProfilePageRoute,
+  CasesRoute: CasesRoute,
+  CheckoutPageRoute: CheckoutPageRoute,
+  DashboardRoute: DashboardRoute,
+  LoginRoute: LoginRoute,
+  NewCaseRoute: NewCaseRoute,
+  PricingPageRoute: PricingPageRoute,
+  SignupRoute: SignupRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
