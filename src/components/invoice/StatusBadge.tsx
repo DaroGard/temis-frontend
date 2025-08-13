@@ -20,19 +20,19 @@ const statusConfig: Record<
   Pendiente: {
     textColor: 'text-yellow-900',
     bgColor: 'bg-yellow-100',
-    icon: <Clock className="inline-block mr-1 h-4 w-4 align-text-bottom text-yellow-700" aria-hidden="true" />,
+    icon: <Clock className="inline-block mr-1 h-4 w-4 align-text-bottom text-pending" aria-hidden="true" />,
     description: 'La factura está pendiente de pago',
   },
   Pagada: {
     textColor: 'text-green-900',
     bgColor: 'bg-green-100',
-    icon: <CheckCircle2 className="inline-block mr-1 h-4 w-4 align-text-bottom text-green-700" aria-hidden="true" />,
+    icon: <CheckCircle2 className="inline-block mr-1 h-4 w-4 align-text-bottom text-success" aria-hidden="true" />,
     description: 'La factura ha sido pagada',
   },
   Vencida: {
     textColor: 'text-red-900',
     bgColor: 'bg-red-100',
-    icon: <AlertTriangle className="inline-block mr-1 h-4 w-4 align-text-bottom text-red-700" aria-hidden="true" />,
+    icon: <AlertTriangle className="inline-block mr-1 h-4 w-4 align-text-bottom text-warning" aria-hidden="true" />,
     description: 'La factura está vencida',
     animatePulse: true,
   },

@@ -57,7 +57,7 @@ export const InvoiceModal: React.FC<Props> = ({ invoice, onClose }) => {
         <div className="p-8">
           {/* Título */}
           <h2 id="invoice-modal-title" className="text-2xl font-bold mb-2 text-black">
-            Bufete García del Cid
+            Detalles de Factura
           </h2>
           <p className="text-gray-600 text-lg mb-6 font-medium">
             Factura #{invoice.id} – {invoice.client}
@@ -127,14 +127,14 @@ export const InvoiceModal: React.FC<Props> = ({ invoice, onClose }) => {
             <PDFDownloadLink
               document={<InvoiceDocument invoice={invoice} />}
               fileName={`factura_${invoice.id}.pdf`}
-              className="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition focus:ring-2 focus:ring-offset-1 focus:ring-blue-600 focus:outline-none"
+              className="px-5 py-2 bg-links hover:bg-links text-white rounded-md transition focus:ring-2 focus:ring-offset-1 focus:ring-links focus:outline-none"
             >
               {({ loading }) => (loading ? 'Generando PDF...' : 'Descargar PDF')}
             </PDFDownloadLink>
 
             <button
               type="button"
-              className="px-5 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md transition focus:ring-2 focus:ring-offset-1 focus:ring-green-600 focus:outline-none"
+              className="px-5 py-2 bg-success hover:bg-success text-white rounded-md transition focus:ring-2 focus:ring-offset-1 focus:ring-success focus:outline-none"
               onClick={() => alert('Factura marcada como pagada')}
             >
               Marcar como Pagada

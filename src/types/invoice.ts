@@ -7,8 +7,10 @@ export interface InvoiceItem {
 }
 
 export interface Invoice {
+  client: any;
   id: number;
-  client: string;
+  client_id: number;         
+  client_name?: string;     
   caseNumber: string;
   amount: number | string;
   issueDate: string;

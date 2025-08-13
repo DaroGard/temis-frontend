@@ -10,6 +10,8 @@ import {
 } from 'lucide-react';
 import type { Invoice, InvoiceItem } from '~/types/invoice';
 
+const API_BASE_URL = 'http://localhost:8000';
+
 interface Props {
   invoice: Invoice;
   onEdit: (inv: Invoice) => void;
@@ -43,6 +45,66 @@ export const InvoiceActionsMenu: React.FC<Props> = ({
   const originalIssueDate = invoice.issueDate;
   const [newIssueDate, setNewIssueDate] = useState<string>('');
 
+  const calculateTotal = () => {
+    return items.reduce((acc, item) => acc + item.hours * item.rate, 0);
+  };
+
+  const handleItemChange = (index: number, field: keyof InvoiceItem, value: string) => {
+    const newItems = [...items];
+    newItems[index] = {
+      ...newItems[index],
+      [field]: field === 'name' ? value : Number(value),
+    };
+    setItems(newItems);
+  };
+
+  const handleSave = () => {
+    const today = new Date().toISOString().split('T')[0];
+    setNewIssueDate(today);
+
+    const updatedInvoice: Invoice = {
+      ...invoice,
+      items,
+      issueDate: today,
+      amount: calculateTotal(),
+    };
+    onEdit(updatedInvoice);
+    setModalOpen(false);
+  };
+
+  const markPaidHandler = async () => {
+    try {
+      const res = await fetch(`${API_BASE_URL}/invoice/status`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ id: invoice.id, status: 'PAYED' }),
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.detail || 'Error al marcar como pagada');
+      }
+
+      // Actualiza localmente el estado a 'Pagada'
+      const updatedInvoice: Invoice = {
+        ...invoice,
+        status: 'Pagada',
+      };
+
+      onMarkPaid(updatedInvoice);
+    } catch (err) {
+      console.error('Error marcando como pagada:', err);
+    } finally {
+      setOpen(false);
+    }
+  };
+
+  // Detectar si ya está pagada para deshabilitar opción
+  const isPaid =
+    invoice.status.toLowerCase() === 'payed' ||
+    invoice.status.toLowerCase() === 'pagada';
+
   const handlers = useMemo(
     () => ({
       edit: () => {
@@ -51,11 +113,17 @@ export const InvoiceActionsMenu: React.FC<Props> = ({
         setModalOpen(true);
         setOpen(false);
       },
-      delete: onDelete,
-      sendEmail: onSendEmail,
-      markPaid: onMarkPaid,
+      delete: (inv: Invoice) => {
+        onDelete(inv);
+        setOpen(false);
+      },
+      sendEmail: (inv: Invoice) => {
+        onSendEmail(inv);
+        setOpen(false);
+      },
+      markPaid: () => markPaidHandler(),
     }),
-    [onDelete, onSendEmail, onMarkPaid, invoice.items]
+    [invoice.items, onDelete, onSendEmail]
   );
 
   const toggleMenu = useCallback(() => {
@@ -103,33 +171,6 @@ export const InvoiceActionsMenu: React.FC<Props> = ({
     };
   }, [open]);
 
-  const calculateTotal = () => {
-    return items.reduce((acc, item) => acc + item.hours * item.rate, 0);
-  };
-
-  const handleItemChange = (index: number, field: keyof InvoiceItem, value: string) => {
-    const newItems = [...items];
-    newItems[index] = {
-      ...newItems[index],
-      [field]: field === 'name' ? value : Number(value),
-    };
-    setItems(newItems);
-  };
-
-  const handleSave = () => {
-    const today = new Date().toISOString().split('T')[0];
-    setNewIssueDate(today);
-
-    const updatedInvoice: Invoice = {
-      ...invoice,
-      items,
-      issueDate: today,
-      amount: calculateTotal(),
-    };
-    onEdit(updatedInvoice);
-    setModalOpen(false);
-  };
-
   return (
     <>
       {/* Botón menú acciones */}
@@ -139,7 +180,7 @@ export const InvoiceActionsMenu: React.FC<Props> = ({
         aria-haspopup="true"
         aria-expanded={open}
         aria-label={`Abrir menú de acciones para factura #${invoice.id}`}
-        className="p-2 rounded-full hover:bg-gray-100 text-gray-500 hover:text-black transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+        className="p-2 rounded-full hover:bg-gray-100 text-gray-500 hover:text-black transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-links"
       >
         <MoreVertical size={18} />
       </button>
@@ -154,17 +195,28 @@ export const InvoiceActionsMenu: React.FC<Props> = ({
             role="menu"
             aria-label={`Opciones de factura #${invoice.id}`}
           >
-            {actions.map(({ label, icon: Icon, key }) => (
-              <button
-                key={key}
-                onClick={() => handlers[key](invoice)}
-                className="flex items-center gap-2 w-full px-4 py-2 text-sm text-left text-gray-700 hover:bg-gray-100 transition-colors focus:outline-none focus-visible:bg-gray-200"
-                role="menuitem"
-              >
-                <Icon size={16} className="text-gray-500" />
-                <span>{label}</span>
-              </button>
-            ))}
+            {actions.map(({ label, icon: Icon, key }) => {
+              const disabled = key === 'markPaid' && isPaid;
+
+              return (
+                <button
+                  key={key}
+                  onClick={() => !disabled && handlers[key](invoice)}
+                  className={`flex items-center gap-2 w-full px-4 py-2 text-sm text-left transition-colors focus:outline-none ${
+                    disabled
+                      ? 'text-gray-400 cursor-not-allowed'
+                      : 'text-gray-700 hover:bg-gray-100 focus-visible:bg-gray-200'
+                  }`}
+                  role="menuitem"
+                  disabled={disabled}
+                  aria-disabled={disabled}
+                  aria-label={disabled ? `${label} (deshabilitado)` : label}
+                >
+                  <Icon size={16} className={disabled ? 'text-gray-400' : 'text-gray-500'} />
+                  <span>{label}</span>
+                </button>
+              );
+            })}
           </div>,
           document.body
         )}
@@ -204,7 +256,6 @@ export const InvoiceActionsMenu: React.FC<Props> = ({
 
                 {/* Fechas */}
                 <div className="mb-8 grid grid-cols-1 sm:grid-cols-2 gap-6">
-                  {/* Fecha original */}
                   <div className="flex flex-col">
                     <label className="block text-sm font-medium mb-1 leading-tight">
                       Fecha de emisión original
@@ -217,7 +268,6 @@ export const InvoiceActionsMenu: React.FC<Props> = ({
                     />
                   </div>
 
-                  {/* Nueva fecha */}
                   <div className="flex flex-col">
                     <label className="block text-sm font-medium mb-1 leading-tight">
                       Nueva fecha de emisión
@@ -226,10 +276,11 @@ export const InvoiceActionsMenu: React.FC<Props> = ({
                       type="text"
                       value={newIssueDate || 'Se actualizará al guardar'}
                       readOnly
-                      className={`w-full border rounded-md px-3 py-2 text-sm leading-tight box-border ${newIssueDate
-                          ? 'border-green-500 text-green-700 bg-green-50'
+                      className={`w-full border rounded-md px-3 py-2 text-sm leading-tight box-border ${
+                        newIssueDate
+                          ? 'border-success text-success bg-green-50'
                           : 'border-gray-300 text-gray-500 bg-gray-100'
-                        } cursor-not-allowed`}
+                      } cursor-not-allowed`}
                     />
                   </div>
                 </div>
@@ -256,7 +307,7 @@ export const InvoiceActionsMenu: React.FC<Props> = ({
                             handleItemChange(index, 'name', e.target.value)
                           }
                           placeholder="Descripción"
-                          className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-links focus:border-links"
                         />
                       </div>
 
@@ -276,7 +327,7 @@ export const InvoiceActionsMenu: React.FC<Props> = ({
                             handleItemChange(index, 'hours', e.target.value)
                           }
                           placeholder="Horas"
-                          className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-links focus:border-links"
                         />
                       </div>
 
@@ -296,7 +347,7 @@ export const InvoiceActionsMenu: React.FC<Props> = ({
                             handleItemChange(index, 'rate', e.target.value)
                           }
                           placeholder="Tarifa"
-                          className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-links focus:border-links"
                         />
                       </div>
                     </div>
@@ -307,7 +358,7 @@ export const InvoiceActionsMenu: React.FC<Props> = ({
                 <div className="mt-10 flex flex-col sm:flex-row justify-between items-center gap-4 sm:gap-0">
                   <p className="font-semibold text-xl">
                     Total:{' '}
-                    <span className="font-extrabold text-blue-600">
+                    <span className="font-extrabold text-links">
                       ${calculateTotal().toFixed(2)}
                     </span>
                   </p>
@@ -322,7 +373,7 @@ export const InvoiceActionsMenu: React.FC<Props> = ({
                     </button>
                     <button
                       type="button"
-                      className="px-6 py-2 bg-blue-600 text-white rounded-md text-sm font-semibold hover:bg-blue-700 transition"
+                      className="px-6 py-2 bg-links text-white rounded-md text-sm font-semibold hover:bg-links transition"
                       onClick={handleSave}
                     >
                       Guardar cambios

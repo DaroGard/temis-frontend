@@ -103,9 +103,19 @@ const InvoiceRow = memo(
 
 interface Props {
   invoices: Invoice[];
+  onEdit: (updatedInvoice: Invoice) => void;
+  onDelete: (inv: Invoice) => void;
+  onSendEmail: (inv: Invoice) => void;
+  onMarkPaid: (updatedInvoice: Invoice) => void;
 }
 
-const InvoiceTable: React.FC<Props> = ({ invoices }) => {
+const InvoiceTable: React.FC<Props> = ({
+  invoices,
+  onEdit,
+  onDelete,
+  onSendEmail,
+  onMarkPaid,
+}) => {
   const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
 
   const handleSelect = useCallback((inv: Invoice) => {

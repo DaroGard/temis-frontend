@@ -147,7 +147,7 @@ export const InvoiceDocument: React.FC<Props> = ({ invoice }) => {
     <Document>
       <Page size="A4" style={styles.page}>
         {/* Cabecera */}
-        <Text style={styles.header}>Bufete García del Cid</Text>
+        <Text style={styles.header}>Detalles de Factura</Text>
 
         {/* Datos básicos */}
         <View style={styles.section}>

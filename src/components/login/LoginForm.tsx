@@ -4,10 +4,10 @@ import { useMutation } from '@tanstack/react-query'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import * as z from 'zod'
-import logo from '~/assets/logos/LogoTemis.svg'
+import logo from '~/assets/logos/logotemis.svg'
 
 interface LoginFormInputs {
-  email: string
+  username: string;
   password: string
 }
 
@@ -15,22 +15,32 @@ interface LoginResponse {
   token: string
 }
 
-const postLogin = async (formData: FormData): Promise<LoginResponse> => {
-  return new Promise((resolve, reject) =>
-    setTimeout(() => {
-      const email = formData.get('username')
-      const password = formData.get('password')
-      if (email === 'test@temis.com' && password === 'password123') {
-        resolve({ token: 'MOCK_TOKEN' })
-      } else {
-        reject(new Error('Credenciales incorrectas'))
-      }
-    }, 1000)
-  )
-}
+const postLogin = async (formData: FormData): Promise<void> => {
+  const response = await fetch('http://localhost:8000/auth/login', {
+    method: 'POST',
+    body: new URLSearchParams(formData as any),
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+  });
+
+  if (!response.ok) {
+    let message = 'Credenciales incorrectas';
+    try {
+      const data = await response.json();
+      if (data.detail) message = data.detail;
+    } catch {
+    }
+    throw new Error(message);
+  }
+
+  return;
+};
+
 
 const loginSchema = z.object({
-  email: z.string().email('Correo inválido').nonempty('Requerido'),
+  username: z.string().nonempty('Requerido'),
   password: z.string().min(8, 'Mínimo 8 caracteres').nonempty('Requerido'),
 })
 
@@ -39,11 +49,10 @@ export default function LoginForm() {
 
   const mutation = useMutation({
     mutationFn: postLogin,
-    onSuccess: (data) => {
-      localStorage.setItem('token', data.token)
-      navigate({ to: '/dashboard' })
+    onSuccess: () => {
+      navigate({ to: '/dashboard' });
     },
-  })
+  });
 
   const {
     register,
@@ -59,7 +68,7 @@ export default function LoginForm() {
   const onSubmit = (values: LoginFormInputs) => {
     clearErrors()
     const formData = new FormData()
-    formData.set('username', values.email)
+    formData.set('username', values.username)
     formData.set('password', values.password)
     mutation.mutate(formData, {
       onError: (error: any) => {
@@ -104,34 +113,34 @@ export default function LoginForm() {
         <div className="space-y-9">
           <div>
             <label
-              htmlFor="email"
+              htmlFor="username"
               className="block text-sm mb-3 text-gray-700 font-medium"
             >
-              Correo
+              Nombre de Usuario
             </label>
             <input
-              id="email"
-              type="email"
-              placeholder="Ingrese su correo..."
-              aria-invalid={errors.email ? 'true' : 'false'}
-              aria-describedby={errors.email ? 'email-error' : undefined}
-              {...register('email')}
-              className={`w-full px-5 py-4 border-b-2 rounded-t-md focus:outline-none focus:ring-0 focus:border-[var(--primary-color)] text-lg transition-colors duration-300 placeholder:text-gray-400 ${errors.email
-                  ? 'border-[var(--warning-color)] placeholder:text-[var(--warning-color)]'
-                  : 'border-gray-300'
+              id="username"
+              type="text"
+              placeholder="Ingrese su nombre de usuario..."
+              aria-invalid={errors.username ? 'true' : 'false'}
+              aria-describedby={errors.username ? 'username-error' : undefined}
+              {...register('username')}
+              className={`w-full px-5 py-4 border-b-2 rounded-t-md focus:outline-none focus:ring-0 focus:border-[var(--primary-color)] text-lg transition-colors duration-300 placeholder:text-gray-400 ${errors.username
+                ? 'border-[var(--warning-color)] placeholder:text-[var(--warning-color)]'
+                : 'border-gray-300'
                 }`}
             />
             <AnimatePresence>
-              {errors.email && (
+              {errors.username && (
                 <motion.p
-                  id="email-error"
+                  id="username-error"
                   className="text-sm text-[var(--warning-color)] mt-2"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
                   role="alert"
                 >
-                  {errors.email.message}
+                  {errors.username.message}
                 </motion.p>
               )}
             </AnimatePresence>
@@ -152,8 +161,8 @@ export default function LoginForm() {
               aria-describedby={errors.password ? 'password-error' : undefined}
               {...register('password')}
               className={`w-full px-5 py-4 border-b-2 rounded-b-md focus:outline-none focus:ring-0 focus:border-[var(--primary-color)] text-lg transition-colors duration-300 placeholder:text-gray-400 ${errors.password
-                  ? 'border-[var(--warning-color)] placeholder:text-[var(--warning-color)]'
-                  : 'border-gray-300'
+                ? 'border-[var(--warning-color)] placeholder:text-[var(--warning-color)]'
+                : 'border-gray-300'
                 }`}
             />
             <AnimatePresence>
