@@ -26,10 +26,12 @@
 - npm install -D @types/react-dom
 - npm install -D @types/node
 - npm install -D @types/date-fns
+- npm install --save-dev @types/lodash
 
 ## Linter y formateo
 - npm install -D eslint prettier eslint-config-prettier eslint-plugin-react
 - npm install date-fns
+- npm install lodash
 
 ## React y núcleo
 - npm install react
@@ -52,12 +54,14 @@
 - npm install tailwind-merge
 - npm install class-variance-authority
 - npm install @headlessui/react
+- npm install @tanstack/react-virtual@latest
 
 ## Íconos, animaciones y UI extra
 - npm install framer-motion
 - npm install lucide-react
 - npm install react-icons
 - npm install @headlessui/react
+- npm install react-tooltip
 
 ## Subida de archivos y red
 - npm install react-dropzone
