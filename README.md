@@ -14,6 +14,7 @@
 - npm install -D typescript
 - npm install -D vite
 - npm install -D vite-tsconfig-paths
+- npm install nodemon
 
 ## Tailwind y PostCSS
 - npm install -D tailwindcss
