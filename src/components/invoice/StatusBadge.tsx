@@ -1,7 +1,7 @@
 import React from 'react';
 import type { InvoiceStatus } from '~/types/invoice';
 import { AlertTriangle, CheckCircle2, Clock } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 
 interface Props {
   status: InvoiceStatus;
@@ -57,33 +57,33 @@ export const StatusBadge: React.FC<Props> = ({ status }) => {
       className={`
         inline-flex
         items-center
-        px-2
+        px-2.5
         py-1
         rounded-full
         text-xs
         font-semibold
         select-none
         cursor-default
-        transition
-        duration-300
-        ease-in-out
         shadow-sm
+        transition
+        duration-200
+        ease-in-out
         hover:shadow-md
-        hover:brightness-105
+        hover:scale-105
         focus:outline-none
         focus:ring-2
         focus:ring-offset-1
-        focus:ring-blue-400
+        focus:ring-links
         ${config.bgColor} ${config.textColor}
       `}
       {...(config.animatePulse
         ? {
           animate: {
-            scale: [1, 1.05, 1],
-            opacity: [1, 0.85, 1],
+            scale: [1, 1.03, 1],
+            opacity: [1, 0.9, 1],
           },
           transition: {
-            duration: 1.8,
+            duration: 1.5,
             repeat: Infinity,
             ease: 'easeInOut',
           },

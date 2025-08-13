@@ -30,12 +30,10 @@ body {
 
 /* seccion de estilos de dashboard */
 @layer components {
-  /* === SECCIÓN GENERAL (Contenedor principal de la tarjeta) === */
   .section-card {
     @apply bg-white rounded-xl shadow-sm border border-slate-200 p-6;
   }
 
-  /* === CABECERA DE SECCIÓN === */
   .section-header {
     @apply flex items-center justify-between mb-6;
   }
@@ -48,7 +46,6 @@ body {
     @apply text-sm text-slate-500;
   }
 
-  /* === ELEMENTOS DE LISTA (como cada factura en tu caso) === */
   .item-container {
     @apply bg-slate-50 rounded-lg p-4;
   }
@@ -69,28 +66,22 @@ body {
     @apply flex items-center space-x-1 text-sm font-medium;
   }
 
-  /* === BOTÓN DE SECCIÓN (por ejemplo, "Gestionar Factura") === */
   .section-button-blue {
     @apply w-full mt-6 bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium;
   }
 
-  /* NUEVAS CLASES SUGERIDAS BASADAS EN TU COMPONENTE */
-
-  /* Estilo general para los títulos H3 dentro de las secciones */
   .section-title {
     @apply text-lg font-semibold text-slate-900;
   }
 
-  /* Estilo para el ícono principal de la sección (ej. DollarSign) */
   .section-icon {
     @apply h-5 w-5;
   }
 
-  /* Estilos para el texto del número de factura */
   .invoice-number-text {
     @apply font-semibold text-slate-900;
   }
-  /* para el badge de estado de componente de seccion de casos */
+
   .status-badge {
     @apply px-2 py-1 rounded-full text-xs font-medium;
   }

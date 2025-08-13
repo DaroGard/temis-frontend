@@ -8,7 +8,7 @@ export function Navbar() {
   const userIconRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
+    const handleClickOutside = (event: MouseEvent) => {
       if (
         menuRef.current &&
         !menuRef.current.contains(event.target as Node) &&
@@ -17,36 +17,50 @@ export function Navbar() {
       ) {
         setMenuOpen(false);
       }
-    }
+    };
+
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setMenuOpen(false);
+    };
 
     if (menuOpen) {
       document.addEventListener("mousedown", handleClickOutside);
-    } else {
-      document.removeEventListener("mousedown", handleClickOutside);
+      document.addEventListener("keydown", handleEscape);
     }
 
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleEscape);
     };
   }, [menuOpen]);
 
   return (
     <header className="bg-[#1E293B] h-20 px-8 flex items-center justify-between shadow-md relative">
+      {/* Logo */}
       <div className="flex items-center gap-4">
         <img src={logo} alt="TEMIS logo" className="h-24" />
       </div>
 
+      {/* Íconos de notificaciones, configuración y usuario */}
       <div className="flex items-center gap-6 text-white relative">
-        <button className="hover:text-blue-300 transition-colors" aria-label="Notificaciones">
+        <button
+          className="hover:text-blue-300 transition-colors"
+          aria-label="Notificaciones"
+        >
           <Bell size={26} />
         </button>
-        <button className="hover:text-blue-300 transition-colors" aria-label="Configuración">
+
+        <button
+          className="hover:text-blue-300 transition-colors"
+          aria-label="Configuración"
+        >
           <Settings size={26} />
         </button>
 
+        {/* Menú de usuario*/}
         <div
           ref={userIconRef}
-          className="w-10 h-10 rounded-full bg-gray-500 flex items-center justify-center hover:ring-2 hover:ring-blue-300 cursor-pointer relative"
+          className="w-10 h-10 rounded-full bg-gray-500 flex items-center justify-center hover:ring-2 hover:ring-blue-300 cursor-pointer relative transition"
           onClick={() => setMenuOpen((open) => !open)}
           aria-haspopup="true"
           aria-expanded={menuOpen}
@@ -57,7 +71,7 @@ export function Navbar() {
           <div
             ref={menuRef}
             className={`
-              origin-top-right absolute right-0 top-full translate-y-2 w-48 bg-white rounded-md shadow-lg ring-1 ring-black ring-opacity-5 z-50
+              origin-top-right absolute right-0 top-full mt-2 w-48 bg-white rounded-md shadow-lg ring-1 ring-black ring-opacity-5 z-50
               transform transition-all duration-200 ease-out
               ${menuOpen ? "opacity-100 scale-100" : "opacity-0 scale-95 pointer-events-none"}
             `}
@@ -66,25 +80,24 @@ export function Navbar() {
             aria-labelledby="user-menu"
             style={{ transformOrigin: "top right" }}
           >
+            {/* Perfil */}
             <a
               href="/UserProfilePage"
-              className="group flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-blue-500 hover:text-white transition-colors"
+              className="group flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-blue-500 hover:text-white transition-colors rounded-md"
               role="menuitem"
-              onClick={() => {
-                setMenuOpen(false)
-              }}
+              onClick={() => setMenuOpen(false)}
             >
               <UserCircle className="mr-3 h-5 w-5" />
               Perfil
             </a>
+
+            {/* Plan */}
             <a href="/pricingPage">
               <button
-                className="group flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-blue-500 hover:text-white transition-colors"
+                className="group flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-blue-500 hover:text-white transition-colors rounded-md"
                 role="menuitem"
                 type="button"
-                onClick={() => {
-                  setMenuOpen(false);
-                }}
+                onClick={() => setMenuOpen(false)}
               >
                 <FileText className="mr-3 h-5 w-5" />
                 Plan
@@ -93,13 +106,12 @@ export function Navbar() {
 
             <div className="border-t border-gray-200 my-1" />
 
+            {/* Cerrar sesión */}
             <button
-              className="group flex items-center w-full px-4 py-2 text-sm text-red-600 hover:bg-red-500 hover:text-white transition-colors"
+              className="group flex items-center w-full px-4 py-2 text-sm text-warning hover:bg-red-500 hover:text-white transition-colors rounded-md"
               role="menuitem"
               type="button"
-              onClick={() => {
-                setMenuOpen(false);
-              }}
+              onClick={() => setMenuOpen(false)}
             >
               <LogOut className="mr-3 h-5 w-5" />
               Cerrar sesión
