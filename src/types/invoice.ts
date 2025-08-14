@@ -1,6 +1,7 @@
 export type InvoiceStatus = 'Pendiente' | 'Pagada' | 'Vencida';
 
 export interface InvoiceItem {
+  id?: number,
   description: string;
   hours_worked: number;
   hourly_rate: number;
@@ -16,7 +17,7 @@ export interface InvoiceSummary {
   amount?: number;
   total_amount: number;
   items?: InvoiceItem[];
-  client_email?: string
+  email?: string;
 }
 
 export interface InvoiceDetail {

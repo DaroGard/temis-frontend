@@ -31,6 +31,7 @@ const InvoiceRow = memo(
     onDelete,
     onSendEmail,
     onMarkPaid,
+    onMarkPaidSuccess,
   }: {
     inv: InvoiceSummary;
     onSelect: (inv: InvoiceSummary) => void;
@@ -39,6 +40,7 @@ const InvoiceRow = memo(
     onDelete: (inv: InvoiceSummary) => void;
     onSendEmail: (inv: InvoiceSummary) => void;
     onMarkPaid: (inv: InvoiceSummary) => void;
+    onMarkPaidSuccess?: () => void;
   }) => {
     const total = inv.total_amount ?? 0;
 
@@ -100,6 +102,7 @@ interface InvoiceTableProps {
   onDelete: (inv: InvoiceSummary) => void;
   onSendEmail: (inv: InvoiceSummary) => void;
   onMarkPaid: (inv: InvoiceSummary) => void;
+  onMarkPaidSuccess?: (inv: InvoiceSummary) => void;
 }
 
 const InvoiceTable: React.FC<InvoiceTableProps> = ({
@@ -108,6 +111,7 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({
   onDelete,
   onSendEmail,
   onMarkPaid,
+  onMarkPaidSuccess,
 }) => {
   // Estado del modal
   const [selectedInvoice, setSelectedInvoice] = useState<InvoiceSummary | null>(null);
@@ -189,7 +193,14 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({
       {/* Modal de detalle de factura */}
       {selectedInvoice && (
         <Suspense fallback={<div className="p-4 text-center text-sm text-gray-500">Cargando factura...</div>}>
-          <InvoiceModal invoice={selectedInvoice} onClose={() => setSelectedInvoice(null)} />
+          <InvoiceModal
+            invoice={selectedInvoice}
+            onClose={() => setSelectedInvoice(null)}
+            onMarkPaidSuccess={() => {
+              onMarkPaidSuccess?.(selectedInvoice);
+              setSelectedInvoice(null);
+            }}
+          />
         </Suspense>
       )}
     </>

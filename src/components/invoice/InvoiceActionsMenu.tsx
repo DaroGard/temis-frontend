@@ -5,6 +5,8 @@ import { MoreVertical, Pencil, Trash, Send, CheckCircle, Plus, X } from 'lucide-
 import type { InvoiceSummary, InvoiceItem } from '~/types/invoice';
 import toast from 'react-hot-toast';
 
+const API_DOMAIN = import.meta.env.VITE_API_DOMAIN;
+
 interface Props {
   invoice: InvoiceSummary;
   onEdit: (inv: InvoiceSummary) => void;
@@ -12,8 +14,6 @@ interface Props {
   onSendEmail: (inv: InvoiceSummary) => void;
   onMarkPaid: (inv: InvoiceSummary) => void;
 }
-
-const API_BASE_URL = 'http://localhost:8000';
 
 export const InvoiceActionsMenu: React.FC<Props> = ({
   invoice,
@@ -51,7 +51,7 @@ export const InvoiceActionsMenu: React.FC<Props> = ({
     });
   };
 
-  const addItem = () => setItems(prev => [...prev, { description: '', hours_worked: 0, hourly_rate: 0 }]);
+  const addItem = () => setItems(prev => [...prev, { id: Date.now(), description: '', hours_worked: 0, hourly_rate: 0 }]);
   const removeItem = (index: number) => setItems(prev => prev.filter((_, i) => i !== index));
 
   // Acciones del menú
@@ -69,14 +69,15 @@ export const InvoiceActionsMenu: React.FC<Props> = ({
     {
       key: 'sendEmail', label: 'Enviar por correo', icon: Send,
       handler: async () => {
-        if (!invoice.client_email) return toast.error('Cliente sin correo registrado');
+        console.log(invoice.email)
+        if (!invoice.email) return toast.error('Cliente sin correo registrado');
         setLoadingAction('send');
         try {
-          const res = await fetch(`${API_BASE_URL}/notifications/invoice`, {
+          const res = await fetch(`${API_DOMAIN}/notifications/invoice`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             credentials: 'include',
-            body: JSON.stringify({ to_email: invoice.client_email, client_name: invoice.client_name, invoice_id: invoice.id }),
+            body: JSON.stringify({ to_email: invoice.email, client_name: invoice.client_name, invoice_id: invoice.id }),
           });
           if (!res.ok) throw new Error((await res.json().catch(() => ({})))?.detail || 'Error al enviar correo');
           toast.success('Correo enviado correctamente');
@@ -91,7 +92,7 @@ export const InvoiceActionsMenu: React.FC<Props> = ({
       handler: async () => {
         setLoadingAction('mark');
         try {
-          const res = await fetch(`${API_BASE_URL}/invoice/status`, {
+          const res = await fetch(`${API_DOMAIN}/invoice/status`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             credentials: 'include',
@@ -139,14 +140,55 @@ export const InvoiceActionsMenu: React.FC<Props> = ({
   const confirmDeleteInvoice = async () => {
     setLoadingAction('delete');
     try {
-      const res = await fetch(`${API_BASE_URL}/invoice/delete?invoice_id=${invoice.id}`, { method: 'DELETE', credentials: 'include' });
+      const res = await fetch(`${API_DOMAIN}/invoice/delete?invoice_id=${invoice.id}`, { method: 'DELETE', credentials: 'include' });
       if (!res.ok) throw new Error((await res.json().catch(() => ({})))?.detail || 'Error al eliminar');
-      toast.success('Factura eliminada correctamente');
       onDelete(invoice);
       setConfirmDeleteOpen(false);
     } catch (err: any) {
       toast.error(err?.message || 'Error al eliminar');
     } finally { setLoadingAction(null); }
+  };
+
+  const handleSave = async () => {
+    setLoadingAction('edit');
+    try {
+      const today = new Date().toISOString().split('T')[0];
+      setNewIssueDate(today);
+
+      // payload para API
+      const payload = {
+        invoice_id: invoice.id,
+        emission_date: today,
+        due_date: invoice.due_date,
+        items: items.map(item => ({
+          id: item.id && item.id < 0 ? undefined : item.id,
+          description: item.description,
+          hours_worked: item.hours_worked,
+          hourly_rate: item.hourly_rate
+        }))
+      };
+
+      const res = await fetch(`${API_DOMAIN}/invoice/edit`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify(payload),
+      });
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => null);
+        throw new Error(data?.detail || 'Error al actualizar la factura');
+      }
+
+      const updatedInvoice = await res.json();
+      onEdit(updatedInvoice);
+      setModalOpen(false);
+      toast.success(`Factura #${invoice.invoice_number} actualizada`);
+    } catch (err: any) {
+      toast.error(err?.message || 'Error al actualizar la factura');
+    } finally {
+      setLoadingAction(null);
+    }
   };
 
   return (
@@ -179,28 +221,30 @@ export const InvoiceActionsMenu: React.FC<Props> = ({
 
       {/* modal editar */}
       <Transition appear show={modalOpen} as={Fragment}>
-        <Dialog as="div" className="fixed inset-0 z-50 overflow-y-auto pointer-events-none" onClose={() => setModalOpen(false)}>
-          <div className="min-h-screen px-4 text-center text-black">
+        <Dialog as="div" className="fixed inset-0 z-50 overflow-y-auto pointer-events-none text-black" onClose={() => setModalOpen(false)}>
+          <div className="min-h-screen px-4 text-center">
             <span className="inline-block h-screen align-middle">&#8203;</span>
             <Transition.Child
               as={Fragment}
               enter="ease-out duration-300" enterFrom="opacity-0 scale-95" enterTo="opacity-100 scale-100"
               leave="ease-in duration-200" leaveFrom="opacity-100 scale-100" leaveTo="opacity-0 scale-95"
             >
-              <Dialog.Panel className="inline-block w-full max-w-2xl p-6 my-8 overflow-hidden text-left align-middle transition-all transform bg-white shadow-xl rounded-2xl pointer-events-auto">
+              <Dialog.Panel className="inline-block w-full max-w-2xl p-6 my-8 overflow-hidden text-left align-middle transition-all transform bg-[var(--Tertiary-color)] backdrop-blur-md border border-[var(--primary-color)] shadow-xl rounded-2xl pointer-events-auto">
 
                 {/* título */}
-                <Dialog.Title className="text-2xl font-semibold mb-6">Editar Factura #{invoice.id}</Dialog.Title>
+                <Dialog.Title className="text-2xl font-semibold text-[var(--primary-color)] mb-6">Editar Factura #{invoice.id}</Dialog.Title>
 
                 {/* fechas */}
                 <div className="mb-6 grid grid-cols-1 sm:grid-cols-2 gap-6">
                   <div>
-                    <label className="block text-sm font-medium mb-1">Fecha de emisión original</label>
-                    <input type="text" value={invoice.emission_date} readOnly className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm bg-gray-100 cursor-not-allowed text-gray-600" />
+                    <label className="block text-sm font-medium mb-1 text-[var(--links-color)]">Fecha emisión original</label>
+                    <input type="text" value={invoice.emission_date} readOnly className="w-full border border-[var(--primary-color)] rounded-md px-3 py-2 text-sm bg-[var(--secondary-color)] cursor-not-allowed text-[var(--primary-color)]" />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium mb-1">Nueva fecha de emisión</label>
-                    <input type="text" value={newIssueDate || 'Se actualizará al guardar'} readOnly className={`w-full border rounded-md px-3 py-2 text-sm ${newIssueDate ? 'border-success text-success bg-green-50' : 'border-gray-300 text-gray-500 bg-gray-100'} cursor-not-allowed`} />
+                    <label className="block text-sm font-medium mb-1 text-[var(--links-color)]">Nueva fecha de emisión</label>
+                    <input type="text" value={newIssueDate || 'Se actualizará al guardar'} readOnly
+                      className={`w-full border rounded-md px-3 py-2 text-sm ${newIssueDate ? 'border-[var(--success-color)] text-[var(--success-color)] bg-[var(--secondary-color)]' : 'border-[var(--primary-color)] text-[var(--primary-color)] bg-[var(--secondary-color)]'} cursor-not-allowed`}
+                    />
                   </div>
                 </div>
 
@@ -210,48 +254,44 @@ export const InvoiceActionsMenu: React.FC<Props> = ({
                     <div key={index} className="grid grid-cols-1 sm:grid-cols-3 gap-4 items-center relative">
                       {(['description', 'hours_worked', 'hourly_rate'] as const).map((field, i) => (
                         <div key={i}>
-                          <label className="block text-sm font-medium mb-1">{field === 'description' ? 'Descripción' : field === 'hours_worked' ? 'Horas' : 'Tarifa'}</label>
+                          <label className="block text-sm font-medium mb-1 text-[var(--links-color)]">{field === 'description' ? 'Descripción' : field === 'hours_worked' ? 'Horas' : 'Tarifa'}</label>
                           <input
                             type={field === 'description' ? 'text' : 'number'}
                             min={0}
                             value={item[field]}
                             onChange={(e) => handleItemChange(index, field, e.target.value)}
-                            className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-links focus:border-links"
+                            className="w-full border border-[var(--primary-color)] rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--links-color)] focus:border-[var(--links-color)]"
                           />
                         </div>
                       ))}
-                      <button onClick={() => removeItem(index)} className="absolute top-1 right-0 p-1 text-warning hover:text-red-700">
+                      {/*TODO: <button onClick={() => removeItem(index)} className="absolute top-1 right-0 p-1 text-[var(--warning-color)] hover:text-red-700">
                         <X size={16} />
-                      </button>
+                      </button>*/}
                     </div>
                   ))}
-                  <button onClick={addItem} className="flex items-center gap-1 text-links text-sm font-semibold hover:underline">
+                  {/*TODO: <button onClick={addItem} className="flex items-center gap-1 text-[var(--links-color)] text-sm font-semibold hover:underline">
                     <Plus size={16} /> Agregar item
-                  </button>
+                  </button>*/}
                 </div>
 
                 {/* total y acciones */}
                 <div className="mt-6 flex flex-col sm:flex-row justify-between items-center gap-4 sm:gap-0">
-                  <p className="font-semibold text-xl">Total: <span className="font-extrabold text-links">${calculateTotal().toFixed(2)}</span></p>
+                  <p className="font-semibold text-xl text-[var(--primary-color)]">Total: <span className="font-extrabold text-[var(--links-color)]">${calculateTotal().toFixed(2)}</span></p>
                   <div className="flex space-x-4">
-                    <button onClick={() => setModalOpen(false)} className="px-6 py-2 border border-gray-300 rounded-md text-sm font-semibold hover:bg-gray-100 transition">Cancelar</button>
-                    <button onClick={() => {
-                      const today = new Date().toISOString().split('T')[0];
-                      setNewIssueDate(today);
-                      onEdit({ ...invoice, emission_date: today, items, total_amount: calculateTotal() });
-                      setModalOpen(false);
-                    }} className="px-6 py-2 bg-links text-white rounded-md text-sm font-semibold hover:bg-links transition">
-                      Guardar cambios
+                    <button onClick={() => setModalOpen(false)} className="px-6 py-2 border border-[var(--primary-color)] rounded-md text-sm font-semibold hover:bg-[var(--secondary-color)] transition">Cancelar</button>
+                    <button onClick={handleSave} className={`px-6 py-2 rounded-md text-sm font-semibold text-[var(--secondary-color)] bg-[var(--links-color)] hover:bg-[var(--primary-color)] transition ${loadingAction === 'edit' ? 'opacity-60 cursor-not-allowed' : ''}`} disabled={loadingAction === 'edit'}>
+                      {loadingAction === 'edit' ? 'Guardando...' : 'Guardar cambios'}
                     </button>
                   </div>
                 </div>
+
               </Dialog.Panel>
             </Transition.Child>
           </div>
         </Dialog>
       </Transition>
 
-      {/* modal confirmar eliminado */}
+      {/* Modal Confirmar eliminación */}
       <Transition appear show={confirmDeleteOpen} as={Fragment}>
         <Dialog as="div" className="fixed inset-0 z-50 overflow-y-auto" onClose={() => setConfirmDeleteOpen(false)}>
           <div className="min-h-screen px-4 text-center">
@@ -261,12 +301,12 @@ export const InvoiceActionsMenu: React.FC<Props> = ({
               enter="ease-out duration-300" enterFrom="opacity-0 scale-95" enterTo="opacity-100 scale-100"
               leave="ease-in duration-200" leaveFrom="opacity-100 scale-100" leaveTo="opacity-0 scale-95"
             >
-              <Dialog.Panel className="inline-block w-full max-w-md p-6 my-8 overflow-hidden text-left align-middle transition-all transform bg-white shadow-xl rounded-2xl">
-                <Dialog.Title className="text-lg font-semibold mb-4 text-black">Confirmar eliminación</Dialog.Title>
-                <p className="mb-6 text-sm text-gray-600">¿Seguro que deseas eliminar la factura #{invoice.invoice_number}?</p>
+              <Dialog.Panel className="inline-block w-full max-w-md p-6 my-8 overflow-hidden text-left align-middle transition-all transform bg-[var(--Tertiary-color)] border border-[var(--primary-color)] shadow-xl rounded-2xl">
+                <Dialog.Title className="text-lg font-semibold mb-4 text-[var(--primary-color)]">Confirmar eliminación</Dialog.Title>
+                <p className="mb-6 text-sm text-[var(--primary-color)]">¿Seguro que deseas eliminar la factura #{invoice.invoice_number}?</p>
                 <div className="flex justify-end gap-4">
-                  <button onClick={() => setConfirmDeleteOpen(false)} className="px-4 py-2 text-sm border rounded-md hover:bg-gray-100 text-black">Cancelar</button>
-                  <button onClick={confirmDeleteInvoice} className="px-4 py-2 text-sm bg-warning text-white rounded-md hover:bg-red-600">{loadingAction === 'delete' ? 'Eliminando...' : 'Eliminar'}</button>
+                  <button onClick={() => setConfirmDeleteOpen(false)} className="px-4 py-2 text-sm border border-[var(--primary-color)] rounded-md hover:bg-[var(--secondary-color)] text-[var(--primary-color)]">Cancelar</button>
+                  <button onClick={confirmDeleteInvoice} className="px-4 py-2 text-sm bg-[var(--warning-color)] text-white rounded-md hover:bg-red-600">{loadingAction === 'delete' ? 'Eliminando...' : 'Eliminar'}</button>
                 </div>
               </Dialog.Panel>
             </Transition.Child>

@@ -15,7 +15,7 @@ export const Route = createFileRoute('/InvoicesPage')({
   component: Invoices,
 });
 
-const API_BASE_URL = 'http://localhost:8000';
+const API_DOMAIN = import.meta.env.VITE_API_DOMAIN;
 const ITEMS_PER_PAGE = 5;
 
 // Hook para facturas y clientes
@@ -30,8 +30,8 @@ function useInvoicesAndClients() {
     setError(null);
     try {
       const [invRes, clientRes] = await Promise.all([
-        fetch(`${API_BASE_URL}/invoice/all`, { credentials: 'include' }),
-        fetch(`${API_BASE_URL}/invoice/clients`, { credentials: 'include' }),
+        fetch(`${API_DOMAIN}/invoice/all`, { credentials: 'include' }),
+        fetch(`${API_DOMAIN}/invoice/clients`, { credentials: 'include' }),
       ]);
 
       if (!invRes.ok) throw new Error('Error cargando facturas');
@@ -101,7 +101,7 @@ function Invoices() {
         })),
       };
 
-      const res = await fetch(`${API_BASE_URL}/invoice/create-preview`, {
+      const res = await fetch(`${API_DOMAIN}/invoice/create-preview`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -122,9 +122,8 @@ function Invoices() {
   };
 
   // Actualizar factura
-  const handleUpdateInvoice = async (updatedInvoice: InvoiceSummary) => {
+  const handleUpdateInvoice = async () => {
     await refresh();
-    toast.success(`Factura #${updatedInvoice.invoice_number} actualizada`);
   };
 
   return (
@@ -188,6 +187,7 @@ function Invoices() {
                 onMarkPaid={handleUpdateInvoice}
                 onDelete={async (deletedInvoice) => { await refresh(); toast.success(`Factura #${deletedInvoice.invoice_number} eliminada correctamente`); }}
                 onSendEmail={() => toast('Función de enviar email no implementada', { icon: '📧' })}
+                onMarkPaidSuccess={() => refresh()}
               />
             </Suspense>
 

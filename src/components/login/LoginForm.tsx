@@ -6,6 +6,8 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import * as z from 'zod'
 import logo from '~/assets/logos/logotemis.svg'
 
+const API_DOMAIN = import.meta.env.VITE_API_DOMAIN;
+
 // Tipos de formulario
 interface LoginFormInputs {
   username: string
@@ -20,7 +22,7 @@ const loginSchema = z.object({
 
 // Función de login
 const postLogin = async (formData: FormData): Promise<void> => {
-  const response = await fetch('http://localhost:8000/auth/login', {
+  const response = await fetch(`${API_DOMAIN}/auth/login`, {
     method: 'POST',
     body: new URLSearchParams(formData as any),
     credentials: 'include',

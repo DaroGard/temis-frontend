@@ -3,7 +3,6 @@ import { Dialog, Transition } from '@headlessui/react';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { InvoiceItem } from '~/types/invoice';
 import type { Client } from '~/types/client';
-import toast from 'react-hot-toast';
 
 export type InvoiceFormData = Omit<{
     client_id: number;
@@ -22,7 +21,10 @@ interface Props {
     clients: Client[] | null | undefined;
 }
 
-const emptyItem = (): InvoiceItem => ({ description: '', hours_worked: 0, hourly_rate: 0 });
+const emptyItem = (): InvoiceItem => ({
+    description: '', hours_worked: 0, hourly_rate: 0,
+    id: 0
+});
 
 export const InvoiceCreateModal: React.FC<Props> = ({
     open,
@@ -96,8 +98,6 @@ export const InvoiceCreateModal: React.FC<Props> = ({
             amount: calculateTotal(),
             items: validItems,
         });
-
-        toast.success('Factura creada correctamente');
 
         // Reset del formulario
         setSelectedClientId(null);

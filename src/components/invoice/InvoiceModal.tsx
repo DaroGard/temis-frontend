@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useCallback } from 'react';
+import React, { useEffect, useRef, useCallback, useState } from 'react';
 import type { InvoiceSummary } from '~/types/invoice';
 import { motion, AnimatePresence } from 'framer-motion';
 import { PDFDownloadLink } from '@react-pdf/renderer';
@@ -9,7 +9,10 @@ import { Tooltip } from 'react-tooltip';
 interface Props {
   invoice: InvoiceSummary | null;
   onClose: () => void;
+  onMarkPaidSuccess?: () => void;
 }
+
+const API_DOMAIN = import.meta.env.VITE_API_DOMAIN;
 
 const formatCurrency = (value: number) =>
   value.toLocaleString('es-ES', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 });
@@ -35,8 +38,9 @@ const StatusBadge: React.FC<{ status: string; dueDate: string }> = ({ status, du
   </motion.span>
 );
 
-export const InvoiceModal: React.FC<Props> = ({ invoice, onClose }) => {
+export const InvoiceModal: React.FC<Props> = ({ invoice, onClose, onMarkPaidSuccess }) => {
   const modalRef = useRef<HTMLDivElement>(null);
+  const [loadingAction, setLoadingAction] = useState<'mark' | null>(null);
 
   // cierre modal
   const handleEscape = useCallback(
@@ -72,10 +76,33 @@ export const InvoiceModal: React.FC<Props> = ({ invoice, onClose }) => {
   const isPaid = invoice.status.toLowerCase() === 'pagada';
 
   // Marcar como pagada 
-  const handleMarkPaid = () => {
+  const handleMarkPaid = async () => {
     if (isPaid) return;
-    toast.success('Factura marcada como pagada');
-    // API para actualizar estado
+    setLoadingAction('mark');
+
+    try {
+      const res = await fetch(`${API_DOMAIN}/invoice/status`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ id: invoice.id, status: 'PAYED' }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data?.detail || 'Error al marcar como pagada');
+      }
+
+      toast.success('Factura marcada como pagada');
+      invoice.status = 'Pagada';
+
+      onMarkPaidSuccess?.();
+
+    } catch (err: any) {
+      toast.error(err?.message || 'Error al marcar como pagada');
+    } finally {
+      setLoadingAction(null);
+    }
   };
 
   return (
@@ -196,14 +223,15 @@ export const InvoiceModal: React.FC<Props> = ({ invoice, onClose }) => {
               <button
                 type="button"
                 className={`px-5 py-2 rounded-xl transition focus:ring-2 focus:ring-offset-1 focus:outline-none ${isPaid
-                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                    : 'bg-success hover:bg-success-dark text-white focus:ring-success'
+                  ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                  : 'bg-success hover:bg-success-dark text-white focus:ring-success'
                   }`}
                 onClick={handleMarkPaid}
-                disabled={isPaid}
+                disabled={isPaid || loadingAction === 'mark'}
               >
-                Marcar como Pagada
+                {loadingAction === 'mark' ? 'Marcando...' : 'Marcar como Pagada'}
               </button>
+
             </footer>
           </div>
         </motion.div>
