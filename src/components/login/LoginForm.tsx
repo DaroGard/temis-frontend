@@ -4,45 +4,49 @@ import { useMutation } from '@tanstack/react-query'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import * as z from 'zod'
-import logo from '~/assets/logos/LogoTemis.svg'
+import logo from '~/assets/logos/logotemis.svg'
 
+const API_DOMAIN = import.meta.env.VITE_API_DOMAIN;
+
+// Tipos de formulario
 interface LoginFormInputs {
-  email: string
+  username: string
   password: string
 }
 
-interface LoginResponse {
-  token: string
-}
-
-const postLogin = async (formData: FormData): Promise<LoginResponse> => {
-  return new Promise((resolve, reject) =>
-    setTimeout(() => {
-      const email = formData.get('username')
-      const password = formData.get('password')
-      if (email === 'test@temis.com' && password === 'password123') {
-        resolve({ token: 'MOCK_TOKEN' })
-      } else {
-        reject(new Error('Credenciales incorrectas'))
-      }
-    }, 1000)
-  )
-}
-
+// Esquema de validación Zod
 const loginSchema = z.object({
-  email: z.string().email('Correo inválido').nonempty('Requerido'),
+  username: z.string().nonempty('Requerido'),
   password: z.string().min(8, 'Mínimo 8 caracteres').nonempty('Requerido'),
 })
+
+// Función de login
+const postLogin = async (formData: FormData): Promise<void> => {
+  const response = await fetch(`${API_DOMAIN}/auth/login`, {
+    method: 'POST',
+    body: new URLSearchParams(formData as any),
+    credentials: 'include',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+  })
+
+  if (!response.ok) {
+    let message = 'Credenciales incorrectas'
+    try {
+      const data = await response.json()
+      if (data.detail) message = data.detail
+    } catch { }
+    throw new Error(message)
+  }
+
+  return
+}
 
 export default function LoginForm() {
   const navigate = useNavigate()
 
   const mutation = useMutation({
     mutationFn: postLogin,
-    onSuccess: (data) => {
-      localStorage.setItem('token', data.token)
-      navigate({ to: '/dashboard' })
-    },
+    onSuccess: () => navigate({ to: '/dashboard' }),
   })
 
   const {
@@ -59,7 +63,7 @@ export default function LoginForm() {
   const onSubmit = (values: LoginFormInputs) => {
     clearErrors()
     const formData = new FormData()
-    formData.set('username', values.email)
+    formData.set('username', values.username)
     formData.set('password', values.password)
     mutation.mutate(formData, {
       onError: (error: any) => {
@@ -68,7 +72,7 @@ export default function LoginForm() {
     })
   }
 
-  const isLoading = mutation.status === 'pending'
+  const isLoading = mutation.isPending
 
   return (
     <motion.form
@@ -76,84 +80,72 @@ export default function LoginForm() {
       initial={{ opacity: 0, y: 24 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, ease: 'easeOut' }}
-      className="relative max-w-[460px] min-h-[765px] rounded-2xl overflow-hidden shadow-2xl bg-white text-[var(--primary-color)] font-[var(--font-sans)] ml-12"
+      className="relative max-w-[460px] min-h-[765px] rounded-2xl overflow-hidden shadow-2xl bg-white font-sans ml-12"
       role="form"
       aria-labelledby="login-title"
       aria-describedby="login-description"
       aria-busy={isLoading}
       aria-disabled={isLoading}
     >
+      {/* Header */}
       <div className="bg-gradient-to-r from-[var(--primary-color)] to-gray-900 px-14 py-6 flex justify-center items-center rounded-t-2xl">
         <img src={logo} alt="LogoTemis" className="h-28 w-auto" />
       </div>
 
+      {/* Contenido del formulario */}
       <div className="pt-12 p-8">
-        <h2
-          id="login-title"
-          className="text-4xl text-center mb-4 font-[var(--font-serif)]"
-        >
+        <h2 id="login-title" className="text-4xl text-center mb-4 font-serif text-primary">
           Bienvenido
         </h2>
-        <p
-          id="login-description"
-          className="text-center text-gray-600 mb-10 text-base"
-        >
+        <p id="login-description" className="text-center text-gray-600 mb-10 text-base">
           Por favor, introduzca su información para iniciar sesión...
         </p>
 
         <div className="space-y-9">
+          {/* Usuario */}
           <div>
-            <label
-              htmlFor="email"
-              className="block text-sm mb-3 text-gray-700 font-medium"
-            >
-              Correo
+            <label htmlFor="username" className="block text-sm mb-3 text-gray-700 font-medium">
+              Nombre de Usuario
             </label>
             <input
-              id="email"
-              type="email"
-              placeholder="Ingrese su correo..."
-              aria-invalid={errors.email ? 'true' : 'false'}
-              aria-describedby={errors.email ? 'email-error' : undefined}
-              {...register('email')}
-              className={`w-full px-5 py-4 border-b-2 rounded-t-md focus:outline-none focus:ring-0 focus:border-[var(--primary-color)] text-lg transition-colors duration-300 placeholder:text-gray-400 ${errors.email
-                  ? 'border-[var(--warning-color)] placeholder:text-[var(--warning-color)]'
-                  : 'border-gray-300'
+              id="username"
+              type="text"
+              placeholder="Ingrese su nombre de usuario..."
+              aria-invalid={!!errors.username}
+              aria-describedby={errors.username ? 'username-error' : undefined}
+              {...register('username')}
+              className={`text-black w-full px-5 py-4 border-b-2 rounded-t-md text-lg transition-colors duration-300 placeholder:text-gray-400 focus:outline-none focus:ring-0 focus:border-[var(--primary-color)] ${errors.username ? 'border-[var(--warning-color)] placeholder:text-[var(--warning-color)]' : 'border-gray-300'
                 }`}
             />
             <AnimatePresence>
-              {errors.email && (
+              {errors.username && (
                 <motion.p
-                  id="email-error"
+                  id="username-error"
                   className="text-sm text-[var(--warning-color)] mt-2"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
                   role="alert"
                 >
-                  {errors.email.message}
+                  {errors.username.message}
                 </motion.p>
               )}
             </AnimatePresence>
           </div>
 
+          {/* Contraseña */}
           <div>
-            <label
-              htmlFor="password"
-              className="block text-sm mb-3 text-gray-700 font-medium"
-            >
+            <label htmlFor="password" className="block text-sm mb-3 text-gray-700 font-medium">
               Contraseña
             </label>
             <input
               id="password"
               type="password"
               placeholder="********"
-              aria-invalid={errors.password ? 'true' : 'false'}
+              aria-invalid={!!errors.password}
               aria-describedby={errors.password ? 'password-error' : undefined}
               {...register('password')}
-              className={`w-full px-5 py-4 border-b-2 rounded-b-md focus:outline-none focus:ring-0 focus:border-[var(--primary-color)] text-lg transition-colors duration-300 placeholder:text-gray-400 ${errors.password
-                  ? 'border-[var(--warning-color)] placeholder:text-[var(--warning-color)]'
-                  : 'border-gray-300'
+              className={`text-black w-full px-5 py-4 border-b-2 rounded-b-md text-lg transition-colors duration-300 placeholder:text-gray-400 focus:outline-none focus:ring-0 focus:border-[var(--primary-color)] ${errors.password ? 'border-[var(--warning-color)] placeholder:text-[var(--warning-color)]' : 'border-gray-300'
                 }`}
             />
             <AnimatePresence>
@@ -171,6 +163,8 @@ export default function LoginForm() {
               )}
             </AnimatePresence>
           </div>
+
+          {/* Error global */}
           <AnimatePresence>
             {mutation.isError && !errors.password && (
               <motion.div
@@ -185,6 +179,8 @@ export default function LoginForm() {
               </motion.div>
             )}
           </AnimatePresence>
+
+          {/* Botón enviar */}
           <button
             type="submit"
             disabled={isLoading}
@@ -193,6 +189,8 @@ export default function LoginForm() {
             {isLoading ? 'Iniciando...' : 'Iniciar sesión'}
           </button>
         </div>
+
+        {/* Registro */}
         <p className="text-center text-sm text-gray-600 mt-10">
           ¿Aún no tienes una cuenta?{' '}
           <Link

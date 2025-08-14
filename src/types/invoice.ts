@@ -1,22 +1,32 @@
 export type InvoiceStatus = 'Pendiente' | 'Pagada' | 'Vencida';
 
 export interface InvoiceItem {
-  name: string;
-  hours: number;
-  rate: number;
+  id?: number,
+  description: string;
+  hours_worked: number;
+  hourly_rate: number;
 }
 
-export interface Invoice {
+export interface InvoiceSummary {
+  id: number;
+  invoice_number: number;
+  client_name: string;
+  emission_date: string;
+  due_date: string;
+  status: InvoiceStatus;
+  amount?: number;
+  total_amount: number;
+  items?: InvoiceItem[];
+  email?: string;
+}
+
+export interface InvoiceDetail {
   id: number;
   client: string;
-  caseNumber: string;
-  amount: number | string;
-  issueDate: string;
-  dueDate: string;
-  status: 'Pendiente' | 'Pagada' | 'Vencida';
-  items: {
-    name: string;
-    hours: number;
-    rate: number;
-  }[];
+  case_number: string;
+  issue_date: string;
+  due_date: string;
+  status: InvoiceStatus;
+  amount: number;
+  items: InvoiceItem[];
 }

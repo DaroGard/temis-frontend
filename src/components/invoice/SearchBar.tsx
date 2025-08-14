@@ -15,7 +15,19 @@ export const SearchBar: React.FC<Props> = ({
 }) => {
   const [inputValue, setInputValue] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
-  const debounceTimeout = useRef<NodeJS.Timeout | null>(null);
+  const debounceRef = useRef<NodeJS.Timeout | null>(null);
+
+  const triggerSearch = useCallback(() => {
+    onSearch(inputValue.trim());
+  }, [inputValue, onSearch]);
+
+  useEffect(() => {
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(triggerSearch, debounceMs);
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+    };
+  }, [inputValue, triggerSearch, debounceMs]);
 
   const clearInput = () => {
     setInputValue('');
@@ -23,22 +35,8 @@ export const SearchBar: React.FC<Props> = ({
   };
 
   const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Escape') {
-      clearInput();
-    }
+    if (e.key === 'Escape') clearInput();
   }, []);
-
-  useEffect(() => {
-    if (debounceTimeout.current) clearTimeout(debounceTimeout.current);
-
-    debounceTimeout.current = setTimeout(() => {
-      onSearch(inputValue.trim());
-    }, debounceMs);
-
-    return () => {
-      if (debounceTimeout.current) clearTimeout(debounceTimeout.current);
-    };
-  }, [inputValue, onSearch, debounceMs]);
 
   return (
     <div className={`relative ${className}`}>
@@ -67,12 +65,13 @@ export const SearchBar: React.FC<Props> = ({
           focus:outline-none
           focus:ring-2
           focus:ring-blue-500/50
-          focus:border-blue-500
+          focus:border-links
           transition-all
           duration-200
           ease-in-out
         "
       />
+
       {/* Icono de búsqueda */}
       <Search
         className="
@@ -80,13 +79,38 @@ export const SearchBar: React.FC<Props> = ({
           left-3
           top-1/2
           -translate-y-1/2
-          h-5
-          w-5
+          h-5 w-5
           text-gray-400
           pointer-events-none
         "
         aria-hidden="true"
       />
+
+      {/* Botón de limpiar */}
+      <AnimatePresence>
+        {inputValue && (
+          <motion.button
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.8 }}
+            onClick={clearInput}
+            aria-label="Limpiar búsqueda"
+            className="
+              absolute
+              right-3
+              top-1/2
+              -translate-y-1/2
+              h-5 w-5
+              text-gray-500
+              hover:text-gray-800
+              transition
+              focus:outline-none
+            "
+          >
+            <X size={18} />
+          </motion.button>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
