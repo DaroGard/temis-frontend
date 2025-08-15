@@ -26,7 +26,7 @@ export const InvoiceActionsMenu: React.FC<Props> = ({
   const [menuOpen, setMenuOpen] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
-  const [loadingAction, setLoadingAction] = useState<'edit' | 'delete' | 'send' | 'mark' | null>(null);
+  const [loadingAction, setLoadingAction] = useState<'edit' | 'delete' | 'sendEmail' | 'mark' | null>(null);
 
   const [items, setItems] = useState<InvoiceItem[]>(invoice.items ?? []);
   const [newIssueDate, setNewIssueDate] = useState('');
@@ -71,7 +71,7 @@ export const InvoiceActionsMenu: React.FC<Props> = ({
       handler: async () => {
         console.log(invoice)
         if (!invoice.client_email) return toast.error('Cliente sin correo registrado');
-        setLoadingAction('send');
+        setLoadingAction('sendEmail');
         try {
           const res = await fetch(`${API_DOMAIN}/notifications/invoice`, {
             method: 'POST',
@@ -79,11 +79,26 @@ export const InvoiceActionsMenu: React.FC<Props> = ({
             credentials: 'include',
             body: JSON.stringify({ to_email: invoice.client_email, client_name: invoice.client_name, invoice_id: invoice.id }),
           });
-          if (!res.ok) throw new Error((await res.json().catch(() => ({})))?.detail || 'Error al enviar correo');
+
+          if (!res.ok) {
+            let errorMessage = 'Error al enviar correo';
+            try {
+              const data = await res.json();
+              errorMessage = data?.detail || errorMessage;
+            } catch {
+              const text = await res.text();
+              if (text) errorMessage = text;
+            }
+            throw new Error(errorMessage);
+          }
+
           toast.success('Correo enviado correctamente');
           onSendEmail(invoice);
-        } catch (err: any) { toast.error(err?.message || 'Error al enviar correo'); }
-        finally { setLoadingAction(null); }
+        } catch (err: any) {
+          toast.error(err?.message || 'Error al enviar correo');
+        } finally {
+          setLoadingAction(null);
+        }
       },
       disabled: false
     },

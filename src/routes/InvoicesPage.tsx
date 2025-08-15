@@ -186,7 +186,7 @@ function Invoices() {
                 onEdit={handleUpdateInvoice}
                 onMarkPaid={handleUpdateInvoice}
                 onDelete={async (deletedInvoice) => { await refresh(); toast.success(`Factura #${deletedInvoice.invoice_number} eliminada correctamente`); }}
-                onSendEmail={() => toast('Función de enviar email no implementada', { icon: '📧' })}
+                onSendEmail={(invoice) => { }}
                 onMarkPaidSuccess={() => refresh()}
               />
             </Suspense>

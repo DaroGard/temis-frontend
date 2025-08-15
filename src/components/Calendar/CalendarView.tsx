@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
+import { motion } from 'framer-motion';
+import { Plus, ChevronLeft, ChevronRight, Calendar as CalendarIcon } from 'lucide-react';
 import { EventModal } from './EventModal';
 import { EventListModal } from './EventListModal';
 import { useCalendar } from '~/types/useCalendar';
-import { motion } from 'framer-motion';
-import { Plus, ChevronLeft, ChevronRight, Calendar as CalendarIcon } from 'lucide-react';
+import { toast } from 'react-hot-toast';
 
 const dayNames = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
 
@@ -18,7 +19,7 @@ export function CalendarView() {
     goToNextMonth,
     goToPreviousMonth,
     today,
-    goToToday
+    goToToday,
   } = useCalendar();
 
   const [modalOpen, setModalOpen] = useState(false);
@@ -65,7 +66,7 @@ export function CalendarView() {
 
       {/* Dias */}
       <div className="grid grid-cols-7 gap-2 mb-2">
-        {dayNames.map((day) => (
+        {dayNames.map(day => (
           <div
             key={day}
             className="text-center font-semibold text-slate-600 bg-slate-100 py-2 rounded"
@@ -97,13 +98,15 @@ export function CalendarView() {
                 <div className="font-medium">{date.getDate()}</div>
                 {eventList.length > 0 && (
                   <ul className="mt-1 space-y-0.5">
-                    {eventList.slice(0, 2).map((e) => (
+                    {eventList.slice(0, 2).map(e => (
                       <li key={e.id} className="text-[11px] text-links truncate">
                         📌 {e.event_name}
                       </li>
                     ))}
                     {eventList.length > 2 && (
-                      <li className="text-[10px] text-gray-400 italic">+{eventList.length - 2} más</li>
+                      <li className="text-[10px] text-gray-400 italic">
+                        +{eventList.length - 2} más
+                      </li>
                     )}
                   </ul>
                 )}
@@ -113,17 +116,20 @@ export function CalendarView() {
         </div>
       </div>
 
-      {/* Modal */}
+      {/* Modals */}
       {modalOpen && (
         <EventModal
           onClose={() => setModalOpen(false)}
           defaultDate={selectedDate ?? undefined}
+          editingEvent={null}
+          toast={toast}
         />
       )}
       {listModalOpen && selectedDate && (
         <EventListModal
           date={selectedDate}
           onClose={() => setListModalOpen(false)}
+          toast={toast}
         />
       )}
     </section>

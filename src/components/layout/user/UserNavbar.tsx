@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { Bell, Settings, User, UserCircle, FileText, LogOut } from "lucide-react";
 import { useNavigate } from '@tanstack/react-router';
 import logo from "~/assets/logos/temisGI.svg";
+import perfil from '~/assets/images/profile/profile1.webp';
 
 export function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -36,19 +37,18 @@ export function Navbar() {
     };
   }, [menuOpen]);
 
-  // Función para cerrar sesión
   const handleLogout = () => {
     setMenuOpen(false);
-
     localStorage.clear();
     sessionStorage.clear();
-
     document.cookie.split(';').forEach(cookie => {
       const name = cookie.split('=')[0].trim();
       document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/;`;
     });
     navigate({ to: '/login' });
   };
+
+  const profileImage = perfil;
 
   return (
     <header className="bg-[#1E293B] h-20 px-8 flex items-center justify-between shadow-md relative">
@@ -78,19 +78,24 @@ export function Navbar() {
         {/* Menú de usuario */}
         <div
           ref={userIconRef}
-          className="w-10 h-10 rounded-full bg-gray-500 flex items-center justify-center hover:ring-2 hover:ring-blue-300 cursor-pointer relative transition"
+          className="w-10 h-10 rounded-full flex items-center justify-center hover:ring-2 hover:ring-blue-300 cursor-pointer relative transition"
           onClick={() => setMenuOpen((open) => !open)}
           aria-haspopup="true"
           aria-expanded={menuOpen}
           aria-label="Menú de usuario"
         >
-          <User size={22} />
+          {/* Mostrar imagen de perfil */}
+          {profileImage ? (
+            <img src={profileImage} alt="Perfil" className="w-full h-full object-cover rounded-full" />
+          ) : (
+            <User size={22} className="text-white" />
+          )}
 
           {/* Contenedor del menú desplegable */}
           <div
             ref={menuRef}
             className={`
-              origin-top-right absolute right-0 top-full mt-2 w-48 bg-white rounded-md shadow-lg ring-1 ring-black ring-opacity-5 z-50
+              absolute right-0 top-full mt-2 w-48 bg-white rounded-md shadow-lg ring-1 ring-black ring-opacity-5 z-50
               transform transition-all duration-200 ease-out
               ${menuOpen ? "opacity-100 scale-100" : "opacity-0 scale-95 pointer-events-none"}
             `}

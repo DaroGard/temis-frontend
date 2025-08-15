@@ -3,6 +3,7 @@ import { Navbar } from '~/components/layout/user/UserNavbar';
 import Footer from '~/components/layout/user/UserFooter';
 import { CalendarView } from '~/components/Calendar/CalendarView';
 import { ArrowLeft } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 export const Route = createFileRoute('/CalendarPage')({
   component: CalendarPage,
@@ -14,17 +15,22 @@ function CalendarPage() {
       <Navbar />
 
       {/* Contenido principal */}
-      <main className="flex-grow max-w-7xl w-full mx-auto px-6 sm:px-8 py-8">
-
+      <motion.main
+        className="flex-grow max-w-7xl w-full mx-auto px-6 sm:px-8 py-8"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
         {/* Regresar */}
         <div className="mb-6">
-          <a
+          <motion.a
             href="/dashboard"
-            className="inline-flex items-center px-4 py-2 rounded-xl bg-white border border-slate-200 shadow-sm hover:shadow-md hover:bg-slate-50 text-slate-700 hover:text-slate-900 transition-all duration-200"
+            className="inline-flex items-center px-4 py-2 rounded-xl bg-white border border-slate-200 shadow-sm text-slate-700 font-medium transition-all duration-200 hover:shadow-md hover:bg-slate-50 hover:text-slate-900"
+            whileHover={{ scale: 1.03 }}
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
-            <span className="font-medium">Regresar</span>
-          </a>
+            Regresar
+          </motion.a>
         </div>
 
         {/* Card del calendario */}
@@ -41,7 +47,7 @@ function CalendarPage() {
           {/* Vista del calendario */}
           <CalendarView />
         </section>
-      </main>
+      </motion.main>
 
       {/* Footer */}
       <Footer />

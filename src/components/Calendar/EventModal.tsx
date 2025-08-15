@@ -1,44 +1,79 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { X } from 'lucide-react';
+import { useCalendar } from '~/types/useCalendar';
 import { CalendarEvent } from '~/types/useCalendar';
 
 interface Props {
   onClose: () => void;
   defaultDate?: Date;
   editingEvent?: CalendarEvent | null;
+  toast: any;
 }
 
-export function EventModal({ onClose, defaultDate, editingEvent }: Props) {
+export function EventModal({ onClose, defaultDate, editingEvent, toast }: Props) {
+  const { addEvent, updateEvent } = useCalendar();
+
   const [eventName, setEventName] = useState('');
   const [tags, setTags] = useState('');
+  const [description, setDescription] = useState('');
   const [dueDate, setDueDate] = useState(
-    defaultDate?.toISOString().split('T')[0] || ''
+    defaultDate ? new Date(defaultDate.getTime() - defaultDate.getTimezoneOffset() * 60000).toISOString().split('T')[0] : ''
   );
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (editingEvent) {
       setEventName(editingEvent.event_name);
       setTags(editingEvent.tags?.join(', ') || '');
-      setDueDate(editingEvent.due_date);
+      setDescription(editingEvent.description || '');
+      setDueDate(new Date(editingEvent.due_date).toISOString().split('T')[0]);
     }
   }, [editingEvent]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    try {
+      setLoading(true);
 
-    const newEvent: CalendarEvent = {
-      id: editingEvent?.id || crypto.randomUUID(),
-      account_id: editingEvent?.account_id || 'acc_001',
-      user_id: editingEvent?.user_id || 'usr_123',
-      event_name: eventName,
-      due_date: dueDate,
-      tags: tags.split(',').map(t => t.trim()).filter(Boolean),
-    };
+      const tzOffsetMin = new Date().getTimezoneOffset();
+      const tzOffsetHrs = String(Math.floor(Math.abs(tzOffsetMin) / 60)).padStart(2, '0');
+      const tzOffsetMins = String(Math.abs(tzOffsetMin) % 60).padStart(2, '0');
+      const tzSign = tzOffsetMin > 0 ? '-' : '+';
+      const dueDateISO = `${dueDate}T00:00:00${tzSign}${tzOffsetHrs}:${tzOffsetMins}`;
 
-    console.log('Evento guardado:', newEvent);
+      const payload = {
+        event_name: eventName,
+        description,
+        due_date: dueDateISO,
+        tags: tags.split(',').map(t => t.trim()).filter(Boolean),
+      };
 
-    onClose();
+      const url = editingEvent
+        ? `${import.meta.env.VITE_API_DOMAIN}/agenda/update/${editingEvent.id}`
+        : `${import.meta.env.VITE_API_DOMAIN}/agenda/new`;
+
+      const res = await fetch(url, {
+        method: editingEvent ? 'PUT' : 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify(payload),
+      });
+
+      if (!res.ok) throw new Error(`Error ${res.status}`);
+
+      const savedEvent: CalendarEvent = await res.json();
+      if (editingEvent) updateEvent(savedEvent);
+      else addEvent(savedEvent);
+
+      toast.success(`Evento ${editingEvent ? 'actualizado' : 'creado'} correctamente`);
+      onClose();
+    } catch (err) {
+      console.error(err);
+      toast.error('No se pudo guardar el evento');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -55,43 +90,14 @@ export function EventModal({ onClose, defaultDate, editingEvent }: Props) {
         <button className="absolute top-3 right-3 text-gray-500" onClick={onClose}>
           <X />
         </button>
-        <h2 className="text-lg font-bold mb-4">
-          {editingEvent ? 'Editar Evento' : 'Nuevo Evento'}
-        </h2>
+        <h2 className="text-lg font-bold mb-4">{editingEvent ? 'Editar Evento' : 'Nuevo Evento'}</h2>
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium">Título</label>
-            <input
-              value={eventName}
-              onChange={(e) => setEventName(e.target.value)}
-              className="w-full border rounded px-3 py-2"
-              required
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium">Fecha</label>
-            <input
-              type="date"
-              value={dueDate}
-              onChange={(e) => setDueDate(e.target.value)}
-              className="w-full border rounded px-3 py-2"
-              required
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium">Etiquetas</label>
-            <input
-              value={tags}
-              onChange={(e) => setTags(e.target.value)}
-              placeholder="Importante, Reunión, Legal..."
-              className="w-full border rounded px-3 py-2"
-            />
-          </div>
-          <button
-            type="submit"
-            className="bg-blue-600 text-white w-full py-2 rounded hover:bg-blue-700"
-          >
-            Guardar Evento
+          <input value={eventName} onChange={e => setEventName(e.target.value)} placeholder="Título" required className="w-full border rounded px-3 py-2" />
+          <input type="date" value={dueDate} onChange={e => setDueDate(e.target.value)} required className="w-full border rounded px-3 py-2" />
+          <textarea value={description} onChange={e => setDescription(e.target.value)} placeholder="Descripción" className="w-full border rounded px-3 py-2" />
+          <input value={tags} onChange={e => setTags(e.target.value)} placeholder="Etiquetas separadas por coma" className="w-full border rounded px-3 py-2" />
+          <button type="submit" disabled={loading} className="bg-links text-white w-full py-2 rounded hover:bg-blue-700 disabled:opacity-50">
+            {loading ? 'Guardando...' : 'Guardar Evento'}
           </button>
         </form>
       </motion.div>

@@ -1,5 +1,11 @@
 import { FaStar, FaRegStar } from 'react-icons/fa';
 import testimonialImg from '~/assets/images/landing/testimonial.webp';
+import perfilImg1 from '~/assets/images/landing/lawyer1.webp';
+import perfilImg2 from '~/assets/images/landing/lawyer2.webp';
+import perfilImg3 from '~/assets/images/landing/lawyer3.webp';
+import perfilImg4 from '~/assets/images/landing/lawyer4.webp';
+import perfilImg5 from '~/assets/images/landing/lawyer5.webp';
+
 
 const testimonials = [
   {
@@ -7,35 +13,35 @@ const testimonials = [
     text: 'Temis revolucionó nuestra práctica legal. La gestión de casos es ahora 3 veces más eficiente y nunca perdemos una fecha importante.',
     reviewer: 'Ana López',
     date: 'Julio 2025',
-    avatar: 'avatar.webp',
+    avatar: `${perfilImg1}`,
   },
   {
     stars: 5,
     text: 'Temis revolucionó nuestra práctica legal. La gestión de casos es ahora 3 veces más eficiente y nunca perdemos una fecha importante.',
     reviewer: 'Carlos Gómez',
     date: 'Julio 2025',
-    avatar: 'avatar.webp',
+    avatar: `${perfilImg3}`,
   },
   {
     stars: 5,
     text: 'La funcionalidad de IA legal nos ha ahorrado horas de investigación. Es como tener un asistente jurídico 24/7.',
     reviewer: 'Lucía Rivas',
     date: 'Julio 2025',
-    avatar: 'avatar.webp',
+    avatar: `${perfilImg2}`,
   },
   {
     stars: 5,
     text: 'La gestión de documentos y evidencias es impecable. Temis nos ayuda a construir casos más sólidos y organizados.',
     reviewer: 'Mario Castro',
     date: 'Julio 2025',
-    avatar: 'avatar.webp',
+    avatar: `${perfilImg4}`,
   },
   {
     stars: 3,
     text: 'El sistema de facturación integrado nos ahorró contratar un contador adicional. Todo está automatizado y es muy preciso.',
     reviewer: 'Sara Martínez',
     date: 'Julio 2025',
-    avatar: 'avatar.webp',
+    avatar: `${perfilImg5}`,
   },
 ];
 

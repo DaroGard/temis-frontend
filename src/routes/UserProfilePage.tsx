@@ -10,6 +10,7 @@ import { UserAssociationInfo } from '~/components/Profile/UserAssociationInfo'
 import { UserCredentialsInfo } from '~/components/Profile/UserCredentialsInfo'
 import { UserProfileActions } from '~/components/Profile/UserProfileActions'
 import Background from '~/assets/images/profile/profile-bg.webp'
+import perfil from '~/assets/images/profile/profile1.webp';
 
 export const Route = createFileRoute('/UserProfilePage')({
   component: UserProfile,
@@ -103,7 +104,7 @@ function UserProfile() {
               name={user.first_name}
               lastName={user.last_name}
               username={user.username}
-              avatarUrl={user.avatarUrl}
+              avatarUrl={perfil}
             />
 
             <section className="grid grid-cols-1 md:grid-cols-2 gap-6">

@@ -9,23 +9,22 @@ export const Route = createFileRoute('/login')({
 
 function Login() {
   return (
-    <div
-      className="w-screen h-screen flex flex-col md:flex-row items-center justify-center md:justify-end relative overflow-hidden"
-      style={{
-        backgroundImage: `url(${Background})`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'right center',
-        backgroundRepeat: 'no-repeat',
-        backgroundColor: 'var(--primary-color)',
-      }}
-    >
+    <div className="w-screen h-screen relative overflow-hidden bg-[var(--primary-color)] flex items-center justify-center">
+
+      {/* Imagen de fondo */}
+      <img
+        src={Background}
+        alt="Background"
+        className="absolute top-0 left-0 w-full h-full object-cover object-[center_10%]"
+      />
+
       {/* Botón regresar */}
-      <div className="absolute top-8 left-8">
+      <div className="absolute top-4 left-4 sm:top-6 sm:left-6 md:top-8 md:left-8 z-10">
         <BackButton />
       </div>
 
       {/* Formulario de login */}
-      <div className="w-full max-w-[460px] mx-10 md:mx-40">
+      <div className="relative z-10 w-full max-w-[600px] px-6 sm:px-10 md:px-15 lg:px-15 py-9 flex flex-col items-center justify-center ml-[900px]">
         <LoginForm />
       </div>
     </div>

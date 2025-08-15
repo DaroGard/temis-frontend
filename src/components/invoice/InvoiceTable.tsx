@@ -85,7 +85,7 @@ const InvoiceRow = memo(
               invoice={inv}
               onEdit={onEdit}
               onDelete={onDelete}
-              onSendEmail={onSendEmail}
+              onSendEmail={() => onSendEmail(inv)}
               onMarkPaid={onMarkPaid}
             />
           </div>
