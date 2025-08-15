@@ -7,121 +7,113 @@ import RecentActivity from './RecentActivity';
 import { Navbar } from '~/components/layout/user/UserNavbar';
 import Footer from '~/components/layout/user/UserFooter';
 
-const mockData = {
-  user: {
-    id: 1,
-    username: "abogado1",
-    first_name: "María",
-    last_name: "González",
-    email: "maria@bufete.com"
-  },
-  metrics: {
-    activeCases: 24,
-    pendingInvoices: 8,
-    todayAppointments: 3,
-    urgentTasks: 5
-  },
-  recentCases: [
-    {
-      id: 1,
-      case_number: "2024-001",
-      client_name: "María González",
-      case_type: "Civil",
-      status: "active" as const
-    },
-    {
-      id: 2,
-      case_number: "2024-002",
-      client_name: "Juan Pérez",
-      case_type: "Comercial",
-      status: "pending" as const
-    }
-  ],
-  recentInvoices: [
-    {
-      id: 1,
-      invoice_number: "#f-2024-045",
-      client_name: "María González",
-      amount: "L 2,500",
-      status: "pending" as const
-    },
-    {
-      id: 2,
-      invoice_number: "#f-2024-046",
-      client_name: "Carlos López",
-      amount: "L 1,800",
-      status: "paid" as const
-    }
-  ],
-  todayAgenda: [
-    {
-      id: 1,
-      time: "14:00",
-      title: "Audiencia Civil",
-      location: "Juzgado 5to circuito",
-      type: "audiencia" as const
-    },
-    {
-      id: 2,
-      time: "16:30",
-      title: "Consulta inicial",
-      location: "Oficina principal",
-      type: "consulta" as const
-    }
-  ],
-  recentActivity: [
+// Importar hooks del servicio API
+import { 
+  useDashboardMetrics, 
+  useRecentCases, 
+  useRecentInvoices, 
+  useUserProfile,
+  useBackendStatus,
+  useTodayAgenda, 
+  dashboardApiService
+} from '~/services/dashboardApiService';
+
+// Importar tipos
+import type { DashboardCase, DashboardInvoice, DashboardMetrics } from '~/types/dashboard';
+
+// Funciones para transformar datos del backend al formato que esperan los componentes
+const transformCasesForDashboard = (cases: DashboardCase[]) => {
+  return cases.map(case_ => ({
+    id: case_.id,
+    case_number: case_.case_number,
+    client_name: case_.client_name,
+    case_type: case_.case_type,
+    status: case_.status.toLowerCase() as 'active' | 'pending' | 'closed'
+  }));
+};
+
+const transformInvoicesForDashboard = (invoices: DashboardInvoice[]) => {
+  return invoices.map(invoice => ({
+    id: invoice.id,
+    invoice_number: `#f-${invoice.invoice_number}`,
+    client_name: invoice.client_name,
+    amount: `L ${invoice.total_amount.toFixed(2)}`,
+    status: invoice.status.toLowerCase() === 'pendiente' ? 'pending' as const : 
+            invoice.status.toLowerCase() === 'pagada' ? 'paid' as const : 'overdue' as const
+  }));
+};
+
+const transformMetricsForDashboard = (metrics: DashboardMetrics) => {
+  return {
+    activeCases: metrics.active_cases,
+    pendingInvoices: metrics.pending_invoices,
+    todayAppointments: metrics.today_appointments,
+    urgentTasks: metrics.urgent_tasks
+  };
+};
+
+const Dashboard = () => {
+  const [searchQuery, setSearchQuery] = useState('');
+
+  // Hooks para datos del backend
+  const { metrics, loading: metricsLoading, error: metricsError, refetch: refetchMetrics } = useDashboardMetrics();
+  const { cases, loading: casesLoading, error: casesError, refetch: refetchCases } = useRecentCases(2);
+  const { invoices, loading: invoicesLoading, error: invoicesError, refetch: refetchInvoices } = useRecentInvoices(2);
+  const { agendaItems, loading: agendaLoading, error: agendaError, refetch: refetchAgenda } = useTodayAgenda();
+  const { profile, loading: profileLoading } = useUserProfile();
+  const backendStatus = useBackendStatus();
+
+  // Datos mock para actividad reciente (hasta que implementes esta funcionalidad)
+  const mockActivity = [
     {
       id: "1",
       type: "document" as const,
-      title: "Documento subido al caso #2024-001",
+      title: "Documento subido al caso",
       timestamp: "2 horas",
       description: "Contrato de arrendamiento actualizado"
     },
     {
       id: "2",
       type: "invoice" as const,
-      title: "Factura #f-2024-045 generada",
+      title: "Factura generada",
       timestamp: "4 horas",
-      description: "Factura enviada a María González"
-    },
-    {
-      id: "3",
-      type: "appointment" as const,
-      title: "Cita programada para mañana",
-      timestamp: "6 horas",
-      description: "Reunión con nuevo cliente"
+      description: "Factura enviada a cliente"
     }
-  ]
-};
-
-const Dashboard = () => {
-  const [data, setData] = useState(mockData);
-  const [loading, setLoading] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
-
-  useEffect(() => {
-    // fetchDashboardData();
-  }, []);
+  ];
 
   const handleSearch = (query: string) => {
     setSearchQuery(query);
-    // logica
     console.log('Searching for:', query);
+  };
+
+  const handleRefreshAll = async () => {
+    await Promise.all([
+      refetchMetrics(),
+      refetchCases(),
+      refetchInvoices(),
+      refetchAgenda()
+    ]);
   };
 
   const handleViewAllCases = () => {
     console.log('Navigate to all cases');
+    // TODO: Navegar a la página de casos
   };
 
   const handleViewAllInvoices = () => {
     console.log('Navigate to all invoices');
+    // TODO: Navegar a la página de facturas
   };
 
   const handleViewCalendar = () => {
     console.log('Navigate to calendar');
+    // TODO: Navegar al calendario
   };
 
-  if (loading) {
+  // Loading state
+  const isLoading = metricsLoading || casesLoading || invoicesLoading || profileLoading || agendaLoading;
+
+  if (isLoading) {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
         <div className="text-center">
@@ -135,49 +127,114 @@ const Dashboard = () => {
   return (
     <div className="min-h-screen bg-slate-50">
       {/* Header */}
-      <Navbar 
-        //userName={`${data.user.first_name} ${data.user.last_name}`}
-        //onSearch={handleSearch}
-      />
+      <Navbar />
+
+      {/* Backend Status Indicator */}
+      {backendStatus !== 'online' && (
+        <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4">
+          <div className="flex">
+            <div className="ml-3">
+              <p className="text-sm">
+                ⚠️ Problemas de conexión con el servidor. Algunos datos pueden no estar actualizados.
+                <button 
+                  onClick={handleRefreshAll}
+                  className="ml-2 underline hover:no-underline"
+                >
+                  Reintentar
+                </button>
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Main Content */}
       <main className="container mx-auto px-6 py-8">
         <div className="mb-8">
           <h1 className="text-3xl font-serif font-bold text-slate-900 mb-2">
-            Bienvenido(a) Abogado
+            Bienvenido(a) {profile ? `${profile.first_name} ${profile.last_name}` : 'Abogado'}
           </h1>
           <p className="text-slate-600">
             Aquí tienes un resumen de tu actividad legal del día
+            {backendStatus === 'online' && (
+              <span className="text-green-600 ml-2">• Datos en tiempo real</span>
+            )}
           </p>
         </div>
 
+        {/* Error Messages */}
+        {(metricsError || casesError || invoicesError || agendaError) && (
+          <div className="mb-6 space-y-2">
+            {metricsError && (
+              <div className="bg-red-50 border border-red-200 rounded p-3 text-red-600 text-sm">
+                Error en métricas: {metricsError}
+              </div>
+            )}
+            {casesError && (
+              <div className="bg-red-50 border border-red-200 rounded p-3 text-red-600 text-sm">
+                Error en casos: {casesError}
+              </div>
+            )}
+            {invoicesError && (
+              <div className="bg-red-50 border border-red-200 rounded p-3 text-red-600 text-sm">
+                Error en facturas: {invoicesError}
+              </div>
+            )}
+            {agendaError && (
+              <div className="bg-red-50 border border-red-200 rounded p-3 text-red-600 text-sm">
+                Error en agenda: {agendaError}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Refresh Button */}
+        <div className="mb-6 flex justify-end">
+          <button
+            onClick={handleRefreshAll}
+            disabled={isLoading}
+            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
+          >
+            {isLoading ? '🔄 Actualizando...' : '🔄 Actualizar datos'}
+          </button>
+        </div>
+
         {/* Metrics Cards */}
-        <MetricsCards metrics={data.metrics} />
+        {metrics ? (
+          <MetricsCards metrics={transformMetricsForDashboard(metrics)} />
+        ) : (
+          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-8">
+            <p className="text-yellow-700">No se pudieron cargar las métricas</p>
+          </div>
+        )}
 
         {/* Main Sections Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
-          {/* Cases Section */}
-          <CasesSection 
-            cases={data.recentCases}
-            onViewAll={handleViewAllCases}
-          />
+          <div className="flex flex-col">
+            <CasesSection 
+              cases={cases ? transformCasesForDashboard(cases) : []}
+              onViewAll={handleViewAllCases}
+            />
+          </div>
 
-          {/* Invoices Section */}
-          <InvoicesSection 
-            invoices={data.recentInvoices}
-            onViewAll={handleViewAllInvoices}
-          />
+          <div className="flex flex-col">
+            <InvoicesSection 
+              invoices={invoices ? transformInvoicesForDashboard(invoices) : []}
+              onViewAll={handleViewAllInvoices}
+            />
+          </div>
 
-          {/* Agenda Section */}
-          <AgendaSection 
-            agendaItems={data.todayAgenda}
-            onViewCalendar={handleViewCalendar}
-          />
+          <div className="flex flex-col">
+            <AgendaSection 
+              agendaItems={agendaItems ? agendaItems.slice(0, 2) : []} 
+              onViewCalendar={handleViewCalendar}
+            />
+          </div>
         </div>
 
         {/* Recent Activity Section */}
         <div className="max-w-9xl">
-          <RecentActivity activities={data.recentActivity} />
+          <RecentActivity activities={mockActivity} />
         </div>
       </main>
       <Footer/>

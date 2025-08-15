@@ -1,16 +1,16 @@
 import { CreateCaseData } from '~/types/cases';
 
-const API_BASE = import.meta.env.VITE_API_DOMAIN || 'http://localhost:8000';
+const API_DOMAIN = import.meta.env.VITE_API_DOMAIN;
 
 // Función helper para hacer requests 
 async function apiRequest(endpoint: string, options: RequestInit = {}, debug = false) {
   if (debug) {
-    console.log(`Making request to: ${API_BASE}${endpoint}`);
+    console.log(`Making request to: ${API_DOMAIN}${endpoint}`);
     console.log(`Request options:`, { method: options.method || 'GET', headers: options.headers });
   }
   
   try {
-    const response = await fetch(`${API_BASE}${endpoint}`, {
+    const response = await fetch(`${API_DOMAIN}${endpoint}`, {
       credentials: 'include',
       headers: {
         'Content-Type': 'application/json',
@@ -70,23 +70,23 @@ async function apiRequest(endpoint: string, options: RequestInit = {}, debug = f
     }
     
     if (error instanceof TypeError) {
-      throw new Error('Error de conexión. Verifica que el servidor esté funcionando en ' + API_BASE);
+      throw new Error('Error de conexión. Verifica que el servidor esté funcionando en ' + API_DOMAIN);
     }
     
     throw error;
   }
 }
 
-// Servicio completo compatible con TODO el sistema
+// Servicio 
 export const casesService = {
-  // ===== MÉTODOS PARA OBTENER CASOS (COMPATIBLES CON casesPage.tsx) =====
+  // ===== MÉTODOS PARA OBTENER CASOS=====
   
-  // Obtener todos los casos del usuario - FUNCIONA CON TU casesPage.tsx
+  // Obtener todos los casos del usuario 
   getAllCases: async () => {
     try {
       const response = await apiRequest('/legal/cases');
       
-      // Tu backend devuelve un array directo según tu casesPage.tsx
+      // Tu backend devuelve un array 
       if (Array.isArray(response)) {
         return {
           cases: response,
@@ -107,7 +107,7 @@ export const casesService = {
     }
   },
   
-  // Obtener métricas de casos - FUNCIONA CON TU casesPage.tsx
+  // Obtener métricas de casos 
   getCasesMetrics: async () => {
     try {
       return await apiRequest('/legal/cases/metrics');
@@ -129,7 +129,7 @@ export const casesService = {
 
   // ===== MÉTODOS PARA ACTUALIZAR CASOS (COMPATIBLES CON CaseEditModal) =====
   
-  // Actualizar caso completo - FUNCIONA CON TU handleSave en casesPage.tsx
+  // Actualizar caso completo 
   updateCase: async (caseId: number, updateData: {
     title?: string;
     case_type?: string;
@@ -211,9 +211,9 @@ export const casesService = {
     }
   },
 
-  // ===== MÉTODO PARA CREAR CASOS NUEVOS (PARA newCase.tsx) =====
+  // ===== MÉTODO PARA CREAR CASOS NUEVOS =====
   
-  // Crear nuevo caso - ADAPTADO PARA TU BACKEND EXACTO
+  // Crear nuevo caso 
   createCase: async (caseData: CreateCaseData) => {
     console.log('createCase llamado con:', caseData);
 
@@ -223,7 +223,7 @@ export const casesService = {
     if (!caseData.clientFirstName?.trim()) throw new Error('El nombre del cliente es requerido');
     if (!caseData.clientEmail?.includes('@')) throw new Error('Email inválido');
 
-    // Convertir fecha al formato ISO que espera tu backend
+    // Convertir fecha al formato ISO 
     let formattedDate: string;
     try {
       if (caseData.startDate.includes('T')) {
@@ -237,7 +237,7 @@ export const casesService = {
       throw new Error('Formato de fecha inválido');
     }
 
-    // Preparar datos del cliente según tu schema NewCaseData
+    // Preparar datos del cliente 
     const clientData = {
       first_name: caseData.clientFirstName.trim(),
       last_name: caseData.clientLastName.trim(),
@@ -249,7 +249,7 @@ export const casesService = {
 
     console.log('Datos del cliente preparados:', clientData);
 
-    // Preparar el payload según tu schema NewCaseData actualizado 
+    // Preparar el payload 
     const backendPayload = {
       title: caseData.title.trim(),
       start_date: formattedDate,
@@ -271,10 +271,10 @@ export const casesService = {
       return caseTypeMap[caseType.toLowerCase()] || 'civil';
     }
 
-    console.log('🚀 Payload final para tu backend:', JSON.stringify(backendPayload, null, 2));
+    console.log('Payload final para tu backend:', JSON.stringify(backendPayload, null, 2));
 
     try {
-      // Llamar a tu endpoint /legal/new con debugging habilitado
+      // Llamar a  endpoint /legal/new con debugging habilitado
       const response = await apiRequest('/legal/new', {
         method: 'POST',
         body: JSON.stringify(backendPayload),
@@ -323,7 +323,7 @@ export const casesService = {
       const formData = new FormData();
       formData.append('file', file);
 
-      const response = await fetch(`${API_BASE}/legal/upload?case_id=${caseId}`, {
+      const response = await fetch(`${API_DOMAIN}/legal/upload?case_id=${caseId}`, {
         method: 'POST',
         credentials: 'include',
         body: formData,
@@ -374,7 +374,7 @@ export const casesService = {
     };
   },
 
-  // Convertir lista de casos del backend al formato frontend - USADO EN casesPage.tsx
+  // Convertir lista de casos del backend al formato frontend 
   convertCasesSummary: (backendData: any) => {
     let casesArray = [];
     
@@ -425,7 +425,7 @@ export const authService = {
       formData.append('username', username);
       formData.append('password', password);
 
-      const response = await fetch(`${API_BASE}/auth/login`, {
+      const response = await fetch(`${API_DOMAIN}/auth/login`, {
         method: 'POST',
         credentials: 'include',
         body: formData, 
