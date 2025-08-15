@@ -51,8 +51,8 @@ export const InvoiceActionsMenu: React.FC<Props> = ({
     });
   };
 
-  const addItem = () => setItems(prev => [...prev, { id: Date.now(), description: '', hours_worked: 0, hourly_rate: 0 }]);
-  const removeItem = (index: number) => setItems(prev => prev.filter((_, i) => i !== index));
+  //const addItem = () => setItems(prev => [...prev, { id: Date.now(), description: '', hours_worked: 0, hourly_rate: 0 }]);
+  //const removeItem = (index: number) => setItems(prev => prev.filter((_, i) => i !== index));
 
   // Acciones del menú
   const actions = [
@@ -69,15 +69,15 @@ export const InvoiceActionsMenu: React.FC<Props> = ({
     {
       key: 'sendEmail', label: 'Enviar por correo', icon: Send,
       handler: async () => {
-        console.log(invoice.email)
-        if (!invoice.email) return toast.error('Cliente sin correo registrado');
+        console.log(invoice)
+        if (!invoice.client_email) return toast.error('Cliente sin correo registrado');
         setLoadingAction('send');
         try {
           const res = await fetch(`${API_DOMAIN}/notifications/invoice`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             credentials: 'include',
-            body: JSON.stringify({ to_email: invoice.email, client_name: invoice.client_name, invoice_id: invoice.id }),
+            body: JSON.stringify({ to_email: invoice.client_email, client_name: invoice.client_name, invoice_id: invoice.id }),
           });
           if (!res.ok) throw new Error((await res.json().catch(() => ({})))?.detail || 'Error al enviar correo');
           toast.success('Correo enviado correctamente');

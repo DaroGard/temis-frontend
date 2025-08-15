@@ -1,11 +1,13 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Bell, Settings, User, UserCircle, FileText, LogOut } from "lucide-react";
+import { useNavigate } from '@tanstack/react-router';
 import logo from "~/assets/logos/temisGI.svg";
 
 export function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const userIconRef = useRef<HTMLDivElement>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -34,6 +36,20 @@ export function Navbar() {
     };
   }, [menuOpen]);
 
+  // Función para cerrar sesión
+  const handleLogout = () => {
+    setMenuOpen(false);
+
+    localStorage.clear();
+    sessionStorage.clear();
+
+    document.cookie.split(';').forEach(cookie => {
+      const name = cookie.split('=')[0].trim();
+      document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/;`;
+    });
+    navigate({ to: '/login' });
+  };
+
   return (
     <header className="bg-[#1E293B] h-20 px-8 flex items-center justify-between shadow-md relative">
       {/* Logo */}
@@ -43,6 +59,7 @@ export function Navbar() {
 
       {/* Íconos de notificaciones, configuración y usuario */}
       <div className="flex items-center gap-6 text-white relative">
+        {/* Botón de notificaciones */}
         <button
           className="hover:text-blue-300 transition-colors"
           aria-label="Notificaciones"
@@ -50,6 +67,7 @@ export function Navbar() {
           <Bell size={26} />
         </button>
 
+        {/* Botón de configuración */}
         <button
           className="hover:text-blue-300 transition-colors"
           aria-label="Configuración"
@@ -57,7 +75,7 @@ export function Navbar() {
           <Settings size={26} />
         </button>
 
-        {/* Menú de usuario*/}
+        {/* Menú de usuario */}
         <div
           ref={userIconRef}
           className="w-10 h-10 rounded-full bg-gray-500 flex items-center justify-center hover:ring-2 hover:ring-blue-300 cursor-pointer relative transition"
@@ -68,6 +86,7 @@ export function Navbar() {
         >
           <User size={22} />
 
+          {/* Contenedor del menú desplegable */}
           <div
             ref={menuRef}
             className={`
@@ -111,7 +130,7 @@ export function Navbar() {
               className="group flex items-center w-full px-4 py-2 text-sm text-warning hover:bg-red-500 hover:text-white transition-colors rounded-md"
               role="menuitem"
               type="button"
-              onClick={() => setMenuOpen(false)}
+              onClick={handleLogout}
             >
               <LogOut className="mr-3 h-5 w-5" />
               Cerrar sesión

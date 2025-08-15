@@ -5,14 +5,9 @@ import viteReact from '@vitejs/plugin-react'
 
 export default defineConfig({
   server: {
-    host: true,
-    port: 3000,
-    hmr: {
-      host:'78.13.106.228',
-      protocol: 'ws',
+      host: true,
       port: 3000,
-    }
-  },
+    },
   plugins: [
     tsConfigPaths({
       projects: ['./tsconfig.json'],
