@@ -9,123 +9,24 @@ import { Button } from "../generals/button";
 import { CasesMetrics, LegalCase } from '~/types/cases';
 import CaseCard from '~/components/Cases/CaseCard';
 import { useNavigate } from "@tanstack/react-router";
-
 import CaseEditModal from '~/components/Cases/CaseDetail/CaseEditModal';
 
-const mockMetrics: CasesMetrics = {
-    total: 24,
-    active: 12,
-    urgent: 3,
-    pending: 9,
-};
-
-const mockCasesData: LegalCase[] = [
-    {
-        id: 1,
-        title: 'Divorcio – Familia García',
-        case_number: 'FAM-2023-001',
-        case_type: 'Divorcio',
-        start_date: '2023-05-01',
-        end_date: '',
-        status: 'pendiente',
-        priority_level: 'alta',
-        description: 'Proceso de divorcio con custodia compartida en disputa.',
-        notes: 'Cliente requiere actualizaciones semanales.',
-        client: {
-            id: 0,
-            name: 'María García',
-            dni: '0801-1990-12345',
-            email: 'maria.garcia@example.com',
-            phone_1: '9999-1234',
-            phone_2: '',
-            address: 'Col. Centro, Tegucigalpa',
-        },
-        account_id: 0,
-        client_id: 0,
-    },
-    {
-        id: 2,
-        title: 'Reclamación de herencia – Familia López',
-        case_number: 'HER-2023-002',
-        case_type: 'Herencia',
-        start_date: '2023-03-15',
-        end_date: '',
-        status: 'activo',
-        priority_level: 'media',
-        description: 'Disputa por la repartición de bienes familiares.',
-        notes: 'Reuniones mensuales programadas con cliente.',
-        client: {
-            id: 1,
-            name: 'Carlos López',
-            dni: '0801-1985-98765',
-            email: 'carlos.lopez@example.com',
-            phone_1: '8888-5678',
-            phone_2: '7777-1234',
-            address: 'Col. La Rivera, San Pedro',
-        },
-        account_id: 0,
-        client_id: 1,
-    },
-    {
-        id: 3,
-        title: 'Contrato de arrendamiento – Empresa XYZ',
-        case_number: 'CON-2023-003',
-        case_type: 'Contrato',
-        start_date: '2023-01-20',
-        end_date: '2023-12-31',
-        status: 'cerrado',
-        priority_level: 'baja',
-        description: 'Renovación y revisión del contrato de arrendamiento.',
-        notes: '',
-        client: {
-            id: 2,
-            name: 'Empresa XYZ',
-            dni: '',
-            email: 'contacto@empresaxyz.com',
-            phone_1: '6666-9999',
-            phone_2: '',
-            address: 'Av. Central 123, Tegucigalpa',
-        },
-        account_id: 0,
-        client_id: 2,
-    },
-    {
-        id: 4,
-        title: 'Asesoría legal – Startup Innovatech',
-        case_number: 'ASE-2023-004',
-        case_type: 'Asesoría',
-        start_date: '2023-06-10',
-        end_date: '',
-        status: 'urgente',
-        priority_level: 'alta',
-        description: 'Asesoría en temas legales para lanzamiento de producto.',
-        notes: 'Reuniones diarias durante la primera semana.',
-        client: {
-            id: 3,
-            name: 'Innovatech S.A.',
-            dni: '',
-            email: 'legal@innovatech.com',
-            phone_1: '5555-4321',
-            phone_2: '5555-4322',
-            address: 'Parque Industrial, Tegucigalpa',
-        },
-        account_id: 0,
-        client_id: 3,
-    },
-];
+// Importar el servicio
+import { casesService } from "~/services/casesService";
 
 const statusOptions = [
     { value: 'all', label: 'Todos los estados' },
     { value: 'activo', label: 'Activo' },
-    { value: 'pendiente', label: 'Pendiente' },
-    { value: 'urgente', label: 'Urgente' },
-    { value: 'cerrado', label: 'Cerrado' },
+    { value: 'victoria', label: 'Victoria (Ganado)' },
+    { value: 'derrota', label: 'Derrota (Perdido)' },
+    { value: 'conciliacion', label: 'Conciliación' },
 ];
 
 const CasosPage = () => {
     const [metrics, setMetrics] = useState<CasesMetrics | null>(null);
     const [cases, setCases] = useState<LegalCase[]>([]);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
     const [selectedStatus, setSelectedStatus] = useState('all');
     const [searchTerm, setSearchTerm] = useState('');
     const [modalOpen, setModalOpen] = useState(false);
@@ -133,14 +34,37 @@ const CasosPage = () => {
 
     const navigate = useNavigate();
 
+    // Cargar datos desde la API
     useEffect(() => {
-        const timer = setTimeout(() => {
-            setMetrics(mockMetrics);
-            setCases(mockCasesData);
-            setLoading(false);
-        }, 1200);
+        const loadData = async () => {
+            try {
+                setLoading(true);
+                setError(null);
 
-        return () => clearTimeout(timer);
+                // Cargar casos y métricas en paralelo
+                const [casesData, metricsData] = await Promise.all([
+                    casesService.getAllCases(),
+                    casesService.getCasesMetrics().catch(() => null) // No fallar si las métricas fallan
+                ]);
+
+                // Convertir casos del backend al formato del frontend
+                const convertedCases = casesService.convertCasesSummary(casesData);
+                setCases(convertedCases);
+
+                // Establecer métricas si se cargaron correctamente
+                if (metricsData) {
+                    setMetrics(metricsData);
+                }
+
+            } catch (err: any) {
+                setError(err.message || 'Error al cargar datos');
+                console.error('Error loading data:', err);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        loadData();
     }, []);
 
     const normalizedSearch = searchTerm.trim().toLowerCase();
@@ -178,16 +102,55 @@ const CasosPage = () => {
         setModalOpen(true);
     }
 
-    function handleSave(updatedData: Partial<LegalCase>) {
+    async function handleSave(updatedData: Partial<LegalCase>) {
         if (!caseToEdit) return;
-        setCases((prevCases) =>
-            prevCases.map(c =>
-                c.id === caseToEdit.id ? { ...c, ...updatedData } : c
-            )
-        );
-        setModalOpen(false);
-        setCaseToEdit(null);
+
+        try {
+            // Actualizar en el backend usando el endpoint correcto
+            const backendResponse = await casesService.updateCase(caseToEdit.id, {
+                title: updatedData.title,
+                case_type: updatedData.case_type,
+                status: updatedData.status,
+                priority_level: updatedData.priority_level,
+                description: updatedData.description,
+                notes: updatedData.notes,
+                start_date: updatedData.start_date,
+                end_date: updatedData.end_date,
+            });
+
+            // Convertir la respuesta del backend al formato del frontend
+            const convertedResponse = casesService.convertBackendToFrontend(backendResponse);
+
+            // Actualizar estado local con los datos reales del backend
+            setCases((prevCases) =>
+                prevCases.map(c =>
+                    c.id === caseToEdit.id ? convertedResponse : c
+                )
+            );
+
+            setModalOpen(false);
+            setCaseToEdit(null);
+
+            console.log('✅ Caso actualizado exitosamente en el backend y frontend sincronizado');
+
+        } catch (error: any) {
+            console.error('Error al actualizar caso:', error);
+            // Solo actualizar localmente si falla el backend
+            setCases((prevCases) =>
+                prevCases.map(c =>
+                    c.id === caseToEdit.id ? { ...c, ...updatedData } : c
+                )
+            );
+            setModalOpen(false);
+            setCaseToEdit(null);
+
+            alert('Los cambios se guardaron localmente pero no se pudieron sincronizar con el servidor: ' + error.message);
+        }
     }
+
+    const handleRetry = () => {
+        window.location.reload();
+    };
 
     return (
         <div className="min-h-screen bg-slate-50">
@@ -218,14 +181,46 @@ const CasosPage = () => {
                     </Button>
                 </div>
 
-                {loading ? (
-                    <p className="text-slate-500">Cargando métricas...</p>
-                ) : metrics ? (
-                    <CasesMetricsCards metrics={metrics} />
-                ) : (
-                    <p className="text-red-500">Error al cargar los datos</p>
+                {/* Manejo de errores */}
+                {error && (
+                    <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <h3 className="text-warning font-medium">Error al cargar datos</h3>
+                                <p className="text-red-600 text-sm mt-1">{error}</p>
+                            </div>
+                            <Button
+                                onClick={handleRetry}
+                                variant="outline"
+                                size="sm"
+                                className="text-red-600 border-red-300 hover:bg-red-50"
+                            >
+                                Reintentar
+                            </Button>
+                        </div>
+                    </div>
                 )}
 
+                {/* Métricas */}
+                {loading ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                        {[...Array(4)].map((_, i) => (
+                            <div key={i} className="bg-white rounded-lg shadow-sm p-6 border border-gray-200 animate-pulse">
+                                <div className="h-12 bg-gray-200 rounded-full w-12 mb-4"></div>
+                                <div className="h-4 bg-gray-200 rounded mb-2"></div>
+                                <div className="h-8 bg-gray-200 rounded w-16"></div>
+                            </div>
+                        ))}
+                    </div>
+                ) : metrics ? (
+                    <CasesMetricsCards metrics={metrics} />
+                ) : !error && (
+                    <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
+                        <p className="text-yellow-800">No se pudieron cargar las métricas</p>
+                    </div>
+                )}
+
+                {/* Filtros y búsqueda */}
                 <div className="flex flex-col md:flex-row gap-4 mb-8">
                     <div className="relative flex-grow">
                         <Input
@@ -251,15 +246,50 @@ const CasosPage = () => {
                     </Button>
                 </div>
 
+                {/* Lista de casos */}
                 <div className="mt-8">
-                    {!loading && cases.length === 0 && (
-                        <p className="text-slate-500 text-center">No hay casos disponibles.</p>
-                    )}
-
                     {loading ? (
-                        <p className="text-slate-500 text-center">Cargando casos...</p>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            {[...Array(6)].map((_, i) => (
+                                <div key={i} className="bg-white rounded-lg shadow-sm p-6 border border-gray-200 animate-pulse">
+                                    <div className="flex justify-between items-center mb-4">
+                                        <div className="h-4 bg-gray-200 rounded w-24"></div>
+                                        <div className="h-6 bg-gray-200 rounded-full w-16"></div>
+                                    </div>
+                                    <div className="h-6 bg-gray-200 rounded mb-2"></div>
+                                    <div className="space-y-2 mb-4">
+                                        <div className="h-3 bg-gray-200 rounded"></div>
+                                        <div className="h-3 bg-gray-200 rounded w-2/3"></div>
+                                        <div className="h-3 bg-gray-200 rounded w-1/2"></div>
+                                    </div>
+                                    <div className="flex space-x-3">
+                                        <div className="h-8 bg-gray-200 rounded flex-grow"></div>
+                                        <div className="h-8 bg-gray-200 rounded flex-grow"></div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
                     ) : filteredCases.length === 0 ? (
-                        <p className="text-slate-500 text-center">No se encontraron casos que coincidan con los filtros.</p>
+                        <div className="text-center py-12">
+                            <div className="bg-white rounded-lg shadow-sm p-8">
+                                {cases.length === 0 && !error ? (
+                                    <>
+                                        <p className="text-slate-500 text-lg mb-4">No tienes casos creados aún</p>
+                                        <Button
+                                            onClick={() => navigate({ to: "/newCase" })}
+                                            className="inline-flex items-center gap-2"
+                                        >
+                                            <Plus size={20} />
+                                            Crear tu primer caso
+                                        </Button>
+                                    </>
+                                ) : (
+                                    <p className="text-slate-500 text-lg">
+                                        No se encontraron casos que coincidan con los filtros aplicados.
+                                    </p>
+                                )}
+                            </div>
+                        </div>
                     ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                             {filteredCases.map((caseItem) => (
@@ -272,6 +302,13 @@ const CasosPage = () => {
                         </div>
                     )}
                 </div>
+
+                {/* Información adicional */}
+                {!loading && cases.length > 0 && (
+                    <div className="mt-8 text-center text-sm text-slate-500">
+                        Mostrando {filteredCases.length} de {cases.length} casos
+                    </div>
+                )}
             </main>
             <Footer />
 

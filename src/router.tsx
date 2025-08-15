@@ -8,7 +8,7 @@ export function createRouter() {
 
   //  Componente 404 
   const NotFound = () => (
-    <div className="text-center text-red-600 text-2xl py-20">
+    <div className="text-center text-warning text-2xl py-20">
       404 - Página no encontrada
     </div>
   )

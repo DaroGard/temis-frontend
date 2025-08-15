@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 
 const API_BASE = `${import.meta.env.VITE_API_DOMAIN}/agenda`;
 
@@ -60,37 +60,56 @@ export function useCalendar() {
   const [selectedDate, setSelectedDate] = useState<Date | null>(today);
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [loading, setLoading] = useState(false);
+  const isFetchingRef = useRef(false);
 
   const month = viewDate.getMonth();
   const year = viewDate.getFullYear();
   const calendarGrid = getDaysInMonth(year, month);
 
-  const fetchEvents = async () => {
+  const fetchEvents = useCallback(async () => {
+    if (isFetchingRef.current) return; 
+    isFetchingRef.current = true;
+
     try {
       setLoading(true);
       const dateFrom = toLocalISOString(new Date(year, month, 1));
       const dateTo = toLocalISOString(new Date(year, month + 1, 0, 23, 59, 59));
       const params = new URLSearchParams({ date_from: dateFrom, date_to: dateTo });
       const res = await fetch(`${API_BASE}/items/all?${params.toString()}`, { credentials: 'include' });
-
       if (!res.ok) throw new Error(`Error ${res.status}`);
       const data: CalendarEvent[] = await res.json();
       setEvents(data);
+    } catch (err) {
+      console.error('Error fetching events:', err);
     } finally {
       setLoading(false);
+      isFetchingRef.current = false;
     }
+  }, [month, year]);
+
+  useEffect(() => { fetchEvents(); }, [fetchEvents]);
+
+  useEffect(() => {
+    const interval = setInterval(() => fetchEvents(), 60000);
+    return () => clearInterval(interval);
+  }, [fetchEvents]);
+
+  const getEventsForDate = useCallback(
+    (day: Date) => {
+      const dateStr = day.toISOString().split('T')[0];
+      return events.filter(e => e.due_date.startsWith(dateStr));
+    },
+    [events]
+  );
+
+  const addEvent = (event: CalendarEvent) => {
+    setEvents(prev => [...prev, event]);
   };
 
-  useEffect(() => { fetchEvents(); }, [month, year]);
-
-  const getEventsForDate = (day: Date) => {
-    const dateStr = day.toISOString().split('T')[0];
-    return events.filter(e => e.due_date.startsWith(dateStr));
+  const updateEvent = (event: CalendarEvent) => {
+    setEvents(prev => prev.map(e => e.id === event.id ? event : e));
   };
 
-  const addEvent = (event: CalendarEvent) => setEvents(prev => [...prev, event]);
-  const updateEvent = (event: CalendarEvent) => setEvents(prev => prev.map(e => e.id === event.id ? event : e));
-  
   const deleteEvent = async (eventId: string) => {
     const res = await fetch(`${API_BASE}/delete/${eventId}`, { method: 'DELETE', credentials: 'include' });
     if (!res.ok) throw new Error(`Error ${res.status}`);

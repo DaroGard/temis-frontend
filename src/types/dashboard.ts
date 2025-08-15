@@ -1,87 +1,41 @@
-// types/dashboard.ts
-export interface User {
-  id: number;
-  username: string;
-  email: string;
-  first_name: string;
-  last_name: string;
-  association_number: string;
-  city: string;
-  status: 'active' | 'inactive';
-  role_id: number;
-  account_id: number;
+export interface DashboardMetrics {
+  active_cases: number;
+  pending_invoices: number;
+  today_appointments: number;
+  urgent_tasks: number;
 }
 
-export interface LegalCase {
+export interface DashboardCase {
   id: number;
-  case_number: string;
   title: string;
-  start_date: string;
-  end_date?: string;
+  case_number: string;
   case_type: string;
-  account_id: number;
-  client_id: number;
-  description: string;
-  priority_level: 'low' | 'medium' | 'high';
-  notes: string;
-  status: 'active' | 'pending' | 'urgent' | 'closed';
-  client?: Client;
+  status: string;
+  client_name: string;
+  start_date: string;
 }
 
-
-export interface Invoice {
+export interface DashboardInvoice {
   id: number;
-  invoice_number: string;
-  client_id: number;
+  invoice_number: number;
+  client_name: string;
+  total_amount: number;
+  status: string;
   emission_date: string;
   due_date: string;
-  issued_by_user_id: number;
-  status: 'pending' | 'paid' | 'overdue';
-  client?: Client;
 }
 
-export interface Client {
+export interface UserProfile {
   id: number;
-  dni: string;
-  name: string;
+  first_name: string;
+  last_name: string;
   email: string;
-  phone_1: string;
-  phone_2?: string;
-  address: string;
+  role_name: string;
+  subscription_plan: string;
 }
 
-
-export interface Agenda {
-  id: number;
-  event_name: string;
-  description: string;
-  due_date: string;
-  tags: string;
-  case_id?: number;
-  legal_case_id?: number;
-}
-
-export interface DashboardMetrics {
-  activeCases: number;
-  pendingInvoices: number;
-  todayAppointments: number;
-  urgentTasks: number;
-}
-
-export interface RecentActivity {
-  id: string;
-  type: 'document' | 'invoice' | 'appointment';
-  title: string;
-  timestamp: string;
-  icon: string;
-  color: string;
-}
-
-export interface DashboardData {
-  user: User;
-  metrics: DashboardMetrics;
-  recentCases: LegalCase[];
-  recentInvoices: Invoice[];
-  todayAgenda: Agenda[];
-  recentActivity: RecentActivity[];
+export interface ApiResponse<T> {
+  success: boolean;
+  data?: T;
+  error?: string;
 }

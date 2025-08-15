@@ -4,8 +4,9 @@ import { useForm } from 'react-hook-form'
 import { LegalCase } from '~/types/cases'
 import { Button } from '~/components/generals/button'
 
-type PriorityLevel = 'baja' | 'media' | 'alta'
-type Status = 'activo' | 'pendiente' | 'cerrado' | 'urgente'
+// Tipos que coinciden con los enums del backend
+type PriorityLevel = 'alta' | 'media' | 'baja'
+type Status = 'activo' | 'victoria' | 'derrota' | 'conciliacion'
 
 type CaseEditModalProps = {
   isOpen: boolean
@@ -26,6 +27,34 @@ type FormData = {
   notes?: string
 }
 
+// Función para mapear estados del backend al frontend
+const mapBackendStatusToFrontend = (backendStatus: string): Status => {
+  const statusMap: Record<string, Status> = {
+    'ACTIVO': 'activo',
+    'VICTORIA': 'victoria', 
+    'DERROTA': 'derrota',
+    'CONCILIACION': 'conciliacion',
+    'activo': 'activo',
+    'victoria': 'victoria',
+    'derrota': 'derrota', 
+    'conciliacion': 'conciliacion'
+  };
+  return statusMap[backendStatus] || 'activo';
+};
+
+// Función para mapear prioridades del backend al frontend
+const mapBackendPriorityToFrontend = (backendPriority: string): PriorityLevel => {
+  const priorityMap: Record<string, PriorityLevel> = {
+    'HIGH': 'alta',
+    'MID': 'media',
+    'NORMAL': 'baja',
+    'alta': 'alta',
+    'media': 'media',
+    'baja': 'baja'
+  };
+  return priorityMap[backendPriority] || 'media';
+};
+
 export default function CaseEditModal({ isOpen, onClose, caseData, onSave }: CaseEditModalProps) {
   const {
     register,
@@ -39,8 +68,8 @@ export default function CaseEditModal({ isOpen, onClose, caseData, onSave }: Cas
       case_type: caseData.case_type,
       start_date: caseData.start_date,
       end_date: caseData.end_date || '',
-      status: caseData.status as Status,
-      priority_level: caseData.priority_level as PriorityLevel,
+      status: mapBackendStatusToFrontend(caseData.status),
+      priority_level: mapBackendPriorityToFrontend(caseData.priority_level),
       description: caseData.description,
       notes: caseData.notes || '',
     },
@@ -54,8 +83,8 @@ export default function CaseEditModal({ isOpen, onClose, caseData, onSave }: Cas
         case_type: caseData.case_type,
         start_date: caseData.start_date,
         end_date: caseData.end_date || '',
-        status: caseData.status as Status,
-        priority_level: caseData.priority_level as PriorityLevel,
+        status: mapBackendStatusToFrontend(caseData.status),
+        priority_level: mapBackendPriorityToFrontend(caseData.priority_level),
         description: caseData.description,
         notes: caseData.notes || '',
       })
@@ -64,16 +93,15 @@ export default function CaseEditModal({ isOpen, onClose, caseData, onSave }: Cas
 
   function onSubmit(data: FormData) {
     const validPriorityLevels: PriorityLevel[] = ['baja', 'media', 'alta']
-    const validStatuses: Status[] = ['activo', 'pendiente', 'cerrado', 'urgente']
+    const validStatuses: Status[] = ['activo', 'victoria', 'derrota', 'conciliacion']
 
     const mappedData: Partial<LegalCase> = {
       ...data,
-      priority_level: validPriorityLevels.includes(data.priority_level) ? data.priority_level : undefined,
-      status: validStatuses.includes(data.status) ? data.status : undefined,
+      priority_level: validPriorityLevels.includes(data.priority_level) ? data.priority_level : 'media',
+      status: validStatuses.includes(data.status) ? data.status : 'activo',
     }
 
     onSave(mappedData)
-    onClose()
   }
 
   return (
@@ -118,27 +146,38 @@ export default function CaseEditModal({ isOpen, onClose, caseData, onSave }: Cas
                   </label>
                   <input
                     id="case_number"
-                    {...register('case_number', { required: 'El número de caso es obligatorio' })}
-                    className={`w-full rounded border px-3 py-2 text-black focus:outline-none focus:ring ${
-                      errors.case_number ? 'border-red-500 focus:ring-red-400' : 'border-gray-300 focus:ring-blue-400'
-                    }`}
+                    {...register('case_number')}
+                    className="w-full rounded border border-gray-300 px-3 py-2 text-black focus:outline-none focus:ring focus:ring-blue-400"
                     type="text"
+                    readOnly
+                    placeholder="Se asigna automáticamente"
                   />
-                  {errors.case_number && <p className="text-red-600 text-sm mt-1">{errors.case_number.message}</p>}
                 </div>
 
                 <div>
                   <label className="block font-medium mb-1 text-black" htmlFor="case_type">
                     Tipo de caso
                   </label>
-                  <input
+                  <select
                     id="case_type"
                     {...register('case_type', { required: 'El tipo de caso es obligatorio' })}
                     className={`w-full rounded border px-3 py-2 text-black focus:outline-none focus:ring ${
                       errors.case_type ? 'border-red-500 focus:ring-red-400' : 'border-gray-300 focus:ring-blue-400'
                     }`}
-                    type="text"
-                  />
+                  >
+                    <option value="CIVIL">Civil</option>
+                    <option value="PENAL">Penal</option>
+                    <option value="LABORAL">Laboral</option>
+                    <option value="FAMILIA">Familiar</option>
+                    <option value="MERCANTIL">Mercantil</option>
+                    <option value="ADMINISTRATIVO">Administrativo</option>
+                    <option value="CONSTITUCIONAL">Constitucional</option>
+                    <option value="CONTENCIOSO_ADMINISTRATIVO">Contencioso Administrativo</option>
+                    <option value="RECLAMOS_MENORES">Reclamos Menores</option>
+                    <option value="FISCAL">Fiscal</option>
+                    <option value="AMBIENTAL">Ambiental</option>
+                    <option value="INTERNACIONAL">Internacional</option>
+                  </select>
                   {errors.case_type && <p className="text-red-600 text-sm mt-1">{errors.case_type.message}</p>}
                 </div>
               </div>
@@ -175,7 +214,7 @@ export default function CaseEditModal({ isOpen, onClose, caseData, onSave }: Cas
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block font-medium mb-1 text-black" htmlFor="status">
-                    Estado
+                    Estado del Caso
                   </label>
                   <select
                     id="status"
@@ -183,9 +222,9 @@ export default function CaseEditModal({ isOpen, onClose, caseData, onSave }: Cas
                     className="w-full rounded border border-gray-300 px-3 py-2 text-black focus:outline-none focus:ring focus:ring-blue-400"
                   >
                     <option value="activo">Activo</option>
-                    <option value="pendiente">Pendiente</option>
-                    <option value="cerrado">Cerrado</option>
-                    <option value="urgente">Urgente</option>
+                    <option value="victoria">Victoria (Ganado)</option>
+                    <option value="derrota">Derrota (Perdido)</option>
+                    <option value="conciliacion">Conciliación</option>
                   </select>
                 </div>
 

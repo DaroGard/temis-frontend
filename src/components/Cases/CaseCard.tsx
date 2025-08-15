@@ -11,17 +11,17 @@ interface CaseCardProps {
 }
 
 const statusClasses: Record<LegalCase['status'], string> = {
-  activo: "bg-green-100 text-green-800",
-  pendiente: "bg-yellow-100 text-yellow-800",
-  urgente: "bg-red-100 text-red-800",
-  cerrado: "bg-gray-100 text-gray-800",
+  activo: "bg-blue-100 text-blue-800",
+  victoria: "bg-green-100 text-green-800",
+  derrota: "bg-red-100 text-red-800",
+  conciliacion: "bg-purple-100 text-purple-800",
 };
 
 const statusLabels: Record<LegalCase['status'], string> = {
   activo: "Activo",
-  pendiente: "Pendiente",
-  urgente: "Urgente",
-  cerrado: "Cerrado",
+  victoria: "Victoria",
+  derrota: "Derrota",
+  conciliacion: "Conciliación",
 };
 
 const formatDate = (dateString: string): string => {
@@ -69,10 +69,10 @@ const CaseCard: React.FC<CaseCardProps> = ({ caseItem, onEdit }) => {
         <span
           className={cn(
             "px-3 py-1 rounded-full text-xs font-semibold",
-            statusClasses[caseItem.status]
+            statusClasses[caseItem.status] || "bg-gray-100 text-gray-800" // Fallback para estados no reconocidos
           )}
         >
-          {statusLabels[caseItem.status]}
+          {statusLabels[caseItem.status] || caseItem.status}
         </span>
       </div>
 

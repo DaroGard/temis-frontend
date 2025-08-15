@@ -18,13 +18,13 @@ const formatCurrency = (value: number) =>
   value.toLocaleString('es-ES', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 });
 
 const dueStatusColor = (dueDate: string, status: string) => {
-  if (status.toLowerCase() === 'pagada') return 'bg-green-100 text-green-800';
+  if (status.toLowerCase() === 'pagada') return 'bg-green-100 text-success';
   const today = new Date();
   const due = new Date(dueDate);
   const diffDays = Math.ceil((due.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-  if (diffDays < 0) return 'bg-red-100 text-red-800';
-  if (diffDays <= 3) return 'bg-yellow-100 text-yellow-800';
-  return 'bg-green-100 text-green-800';
+  if (diffDays < 0) return 'bg-red-100 text-warning';
+  if (diffDays <= 3) return 'bg-yellow-100 text-pending';
+  return 'bg-yellow-100 text-pending';
 };
 
 const StatusBadge: React.FC<{ status: string; dueDate: string }> = ({ status, dueDate }) => (

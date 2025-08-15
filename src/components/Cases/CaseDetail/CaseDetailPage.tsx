@@ -3,157 +3,203 @@ import { LegalCase } from '~/types/cases'
 import { useEffect, useState } from 'react'
 import { Navbar } from '~/components/layout/user/UserNavbar'
 import Footer from '~/components/layout/user/UserFooter'
-import { ArrowLeft, Calendar, FileText, User } from 'lucide-react'
+import { ArrowLeft, Calendar, FileText, User, AlertCircle } from 'lucide-react'
 import { Button } from '~/components/generals/button'
 import { motion } from 'framer-motion'
 import CaseEditModal from '~/components/Cases/CaseDetail/CaseEditModal'
 import { CaseFilesCard } from './CaseFilesCard'
 import type { CaseFile } from '~/components/Cases/CaseDetail/CaseFilesCard'
 
-const mockCasesData: LegalCase[] = [
-  {
-    id: 1,
-    title: 'Divorcio – Familia García',
-    case_number: 'FAM-2023-001',
-    case_type: 'Divorcio',
-    start_date: '2023-05-01',
-    end_date: '',
-    status: 'pendiente',
-    priority_level: 'alta',
-    description: 'Proceso de divorcio con custodia compartida en disputa.',
-    notes: 'Cliente requiere actualizaciones semanales.',
-    client: {
-      name: 'María García',
-      email: 'maria.garcia@example.com',
-      phone_1: '9999-1234',
-      phone_2: '',
-      address: 'Col. Centro, Tegucigalpa',
-      dni: '0801-1990-12345',
-      id: 0,
-    },
-    account_id: 0,
-    client_id: 0,
-  },
-  {
-    id: 2,
-    title: 'Reclamación de herencia – Familia López',
-    case_number: 'HER-2023-002',
-    case_type: 'Herencia',
-    start_date: '2023-03-15',
-    end_date: '',
-    status: 'activo',
-    priority_level: 'media',
-    description: 'Disputa por la repartición de bienes familiares.',
-    notes: 'Reuniones mensuales programadas con cliente.',
-    client: {
-      name: 'Carlos López',
-      email: 'carlos.lopez@example.com',
-      phone_1: '8888-5678',
-      phone_2: '7777-1234',
-      address: 'Col. La Rivera, San Pedro',
-      dni: '0801-1985-98765',
-      id: 1,
-    },
-    account_id: 0,
-    client_id: 1,
-  },
-  {
-    id: 3,
-    title: 'Contrato de arrendamiento – Empresa XYZ',
-    case_number: 'CON-2023-003',
-    case_type: 'Contrato',
-    start_date: '2023-01-20',
-    end_date: '2023-12-31',
-    status: 'cerrado',
-    priority_level: 'baja',
-    description: 'Renovación y revisión del contrato de arrendamiento.',
-    notes: '',
-    client: {
-      name: 'Empresa XYZ',
-      email: 'contacto@empresaxyz.com',
-      phone_1: '6666-9999',
-      phone_2: '',
-      address: 'Av. Central 123, Tegucigalpa',
-      dni: '',
-      id: 2,
-    },
-    account_id: 0,
-    client_id: 2,
-  },
-  {
-    id: 4,
-    title: 'Asesoría legal – Startup Innovatech',
-    case_number: 'ASE-2023-004',
-    case_type: 'Asesoría',
-    start_date: '2023-06-10',
-    end_date: '',
-    status: 'urgente',
-    priority_level: 'alta',
-    description: 'Asesoría en temas legales para lanzamiento de producto.',
-    notes: 'Reuniones diarias durante la primera semana.',
-    client: {
-      name: 'Innovatech S.A.',
-      email: 'legal@innovatech.com',
-      phone_1: '5555-4321',
-      phone_2: '5555-4322',
-      address: 'Parque Industrial, Tegucigalpa',
-      dni: '',
-      id: 3,
-    },
-    account_id: 0,
-    client_id: 3,
-  },
-]
+// Importar el servicio
+import { casesService } from '~/services/casesService'
 
-const mockFiles: CaseFile[] = [
-  {
-    id: "1",
-    name: "Contrato.pdf",
-    type: "pdf",
-    size: 2456780,
-    uploadedAt: new Date(2025, 7, 10, 14, 30),
-    url: "prueba1",
-  },
-  {
-    id: "2",
-    name: "Evidencia.jpg",
-    type: "jpg",
-    size: 1890000,
-    uploadedAt: new Date(2025, 7, 9, 9, 15),
-    url: "prueba3",
-  },
-  {
-    id: "3",
-    name: "Informe.docx",
-    type: "docx",
-    size: 3200000,
-    uploadedAt: new Date(2025, 7, 8, 18, 45),
-    url: "prueba2",
-  },
-];
+const statusLabels: Record<string, string> = {
+  activo: "Activo",
+  victoria: "Victoria",
+  derrota: "Derrota",
+  conciliacion: "Conciliación",
+};
+
+const priorityLabels: Record<string, string> = {
+  normal: "Normal",
+  mid: "Media", 
+  high: "Alta",
+  baja: "Baja",
+  media: "Media",
+  alta: "Alta",
+};
+
+const formatDate = (dateString: string): string => {
+  try {
+    const date = new Date(dateString);
+    return date.toLocaleDateString("es-ES", {
+      day: "2-digit",
+      month: "long", 
+      year: "numeric",
+    });
+  } catch {
+    return dateString;
+  }
+};
 
 export default function CaseDetailPage() {
   const params = useParams({ from: '/$caseId' })
-  const caseId = params.caseId as string | undefined
+  const caseId = parseInt(params.caseId as string)
 
   const [caseItem, setCaseItem] = useState<LegalCase | null>(null)
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [files, setFiles] = useState<CaseFile[]>([])
 
+  // Cargar datos del caso desde la API
   useEffect(() => {
-    if (!caseId) return
-    const found = mockCasesData.find((c) => String(c.id) === caseId)
-    setCaseItem(found || null)
+    const loadCaseData = async () => {
+      if (!caseId) return
+      
+      try {
+        setLoading(true)
+        setError(null)
+        
+        // Cargar caso y archivos en paralelo
+        const [caseData, filesData] = await Promise.all([
+          casesService.getCaseById(caseId),
+          casesService.getCaseFiles(caseId).catch(() => []) // No fallar si no hay archivos
+        ])
+        
+        // Convertir caso del backend al formato del frontend
+        const convertedCase = casesService.convertBackendToFrontend(caseData)
+        setCaseItem(convertedCase)
+        
+        // Convertir archivos al formato esperado por CaseFilesCard
+        const convertedFiles: CaseFile[] = filesData.map((file: any) => ({
+          id: file.id.toString(),
+          name: file.file_name,
+          type: getFileExtension(file.file_name) as any,
+          size: file.size_mb * 1024 * 1024, // Convertir MB a bytes
+          uploadedAt: new Date(file.upload_date),
+          url: `#file-${file.id}`, // URL temporal
+        }))
+        setFiles(convertedFiles)
+        
+      } catch (err: any) {
+        setError(err.message || 'Error al cargar el caso')
+        console.error('Error loading case:', err)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    loadCaseData()
   }, [caseId])
 
-  function handleSaveCase(updatedData: Partial<LegalCase>) {
-    setCaseItem(prev => (prev ? { ...prev, ...updatedData } : prev))
-    setIsEditModalOpen(false)
+  const getFileExtension = (filename: string): string => {
+    const ext = filename.split('.').pop()?.toLowerCase()
+    return ext || 'file'
   }
 
-  if (!caseItem) {
+  async function handleSaveCase(updatedData: Partial<LegalCase>) {
+    if (!caseItem) return
+
+    try {
+      // Actualizar en el backend
+      const backendResponse = await casesService.updateCase(caseItem.id, {
+        title: updatedData.title,
+        case_type: updatedData.case_type,
+        status: updatedData.status,
+        priority_level: updatedData.priority_level,
+        description: updatedData.description,
+        notes: updatedData.notes,
+        start_date: updatedData.start_date,
+        end_date: updatedData.end_date,
+      })
+      
+      // Convertir la respuesta del backend al formato del frontend
+      const convertedResponse = casesService.convertBackendToFrontend(backendResponse)
+      
+      // Actualizar estado local
+      setCaseItem(convertedResponse)
+      setIsEditModalOpen(false)
+      
+      console.log('✅ Caso actualizado exitosamente')
+      
+    } catch (error: any) {
+      console.error('Error updating case:', error)
+      // Actualizar solo localmente si falla el backend
+      setCaseItem(prev => (prev ? { ...prev, ...updatedData } : prev))
+      setIsEditModalOpen(false)
+      alert('Los cambios se guardaron localmente pero no se pudieron sincronizar con el servidor: ' + error.message)
+    }
+  }
+
+  const handleRetry = () => {
+    window.location.reload()
+  }
+
+  if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50">
-        <p className="p-6 text-slate-600 text-lg">Archivo no encontrado</p>
+      <div className="min-h-screen bg-slate-50 flex flex-col">
+        <Navbar />
+        <div className="px-6 pt-4 max-w-6xl mx-auto w-full">
+          <div className="h-6 bg-gray-200 rounded w-32 animate-pulse"></div>
+        </div>
+        <main className="container max-w-6xl mx-auto px-6 py-10 flex flex-col gap-10">
+          <header className="animate-pulse">
+            <div className="h-10 bg-gray-200 rounded w-2/3 mb-4"></div>
+            <div className="h-6 bg-gray-200 rounded w-1/2"></div>
+          </header>
+          {[...Array(3)].map((_, i) => (
+            <section key={i} className="bg-white rounded-lg shadow-md p-8 animate-pulse">
+              <div className="h-6 bg-gray-200 rounded w-1/4 mb-6"></div>
+              <div className="space-y-4">
+                <div className="h-4 bg-gray-200 rounded"></div>
+                <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+              </div>
+            </section>
+          ))}
+        </main>
+        <Footer />
+      </div>
+    )
+  }
+
+  if (error || !caseItem) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex flex-col">
+        <Navbar />
+        <div className="px-6 pt-4 max-w-6xl mx-auto w-full">
+          <a
+            href="/cases"
+            className="inline-flex items-center text-sm text-slate-700 hover:text-slate-900 transition-colors"
+          >
+            <ArrowLeft className="w-5 h-5 mr-2" />
+            Volver a Casos
+          </a>
+        </div>
+        <main className="container max-w-6xl mx-auto px-6 py-10">
+          <div className="bg-red-50 border border-red-200 rounded-lg p-8 text-center">
+            <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
+            <h2 className="text-xl font-semibold text-red-800 mb-2">
+              {error ? 'Error al cargar el caso' : 'Caso no encontrado'}
+            </h2>
+            <p className="text-red-600 mb-4">
+              {error || 'El caso solicitado no existe o no tienes permisos para verlo.'}
+            </p>
+            <div className="flex gap-4 justify-center">
+              <Button
+                variant="outline"
+                onClick={() => window.history.back()}
+              >
+                Volver
+              </Button>
+              <Button onClick={handleRetry}>
+                Reintentar
+              </Button>
+            </div>
+          </div>
+        </main>
+        <Footer />
       </div>
     )
   }
@@ -183,7 +229,7 @@ export default function CaseDetailPage() {
             {caseItem.title}
           </motion.h1>
           <p className="text-slate-600 text-lg font-medium">
-            #{caseItem.case_number} – {caseItem.case_type}
+            #{caseItem.case_number} — {caseItem.case_type}
           </p>
         </header>
 
@@ -195,14 +241,14 @@ export default function CaseDetailPage() {
               <p className="flex items-center gap-3">
                 <Calendar size={20} className="text-gray-400" />
                 <span>
-                  <span className="font-semibold">Inicio:</span> {caseItem.start_date}
+                  <span className="font-semibold">Inicio:</span> {formatDate(caseItem.start_date)}
                 </span>
               </p>
               {caseItem.end_date && (
                 <p className="flex items-center gap-3">
                   <Calendar size={20} className="text-gray-400" />
                   <span>
-                    <span className="font-semibold">Fin:</span> {caseItem.end_date}
+                    <span className="font-semibold">Fin:</span> {formatDate(caseItem.end_date)}
                   </span>
                 </p>
               )}
@@ -213,19 +259,21 @@ export default function CaseDetailPage() {
                   <span
                     className={
                       caseItem.priority_level === 'alta'
-                        ? 'text-warning font-bold'
+                        ? 'text-red-600 font-bold'
                         : caseItem.priority_level === 'media'
-                          ? 'text-pending font-semibold'
-                          : 'text-success font-semibold'
+                          ? 'text-yellow-600 font-semibold'
+                          : 'text-green-600 font-semibold'
                     }
                   >
-                    {caseItem.priority_level.charAt(0).toUpperCase() + caseItem.priority_level.slice(1)}
+                    {priorityLabels[caseItem.priority_level] || caseItem.priority_level.charAt(0).toUpperCase() + caseItem.priority_level.slice(1)}
                   </span>
                 </span>
               </p>
               <p className="italic text-sm text-gray-500 mt-2">
                 Estado actual:{' '}
-                <span className="font-semibold text-gray-800 capitalize">{caseItem.status}</span>
+                <span className="font-semibold text-gray-800 capitalize">
+                  {statusLabels[caseItem.status] || caseItem.status}
+                </span>
               </p>
             </div>
 
@@ -243,10 +291,10 @@ export default function CaseDetailPage() {
               <span className="font-semibold">{caseItem.client?.name ?? 'No asignado'}</span>
             </p>
             <p>
-              <span className="font-semibold">Email:</span> {caseItem.client?.email}
+              <span className="font-semibold">Email:</span> {caseItem.client?.email || 'No disponible'}
             </p>
             <p>
-              <span className="font-semibold">Teléfono:</span> {caseItem.client?.phone_1}
+              <span className="font-semibold">Teléfono:</span> {caseItem.client?.phone_1 || 'No disponible'}
             </p>
             {caseItem.client?.phone_2 && (
               <p>
@@ -254,10 +302,10 @@ export default function CaseDetailPage() {
               </p>
             )}
             <p>
-              <span className="font-semibold">Dirección:</span> {caseItem.client?.address}
+              <span className="font-semibold">Dirección:</span> {caseItem.client?.address || 'No disponible'}
             </p>
             <p>
-              <span className="font-semibold">DNI:</span> {caseItem.client?.dni}
+              <span className="font-semibold">DNI:</span> {caseItem.client?.dni || 'No disponible'}
             </p>
           </div>
         </section>
@@ -275,7 +323,7 @@ export default function CaseDetailPage() {
         )}
 
         <section className="bg-white rounded-lg shadow-md p-8">
-          <CaseFilesCard files={mockFiles} />
+          <CaseFilesCard files={files} />
         </section>
 
         <div className="flex gap-4 justify-start">
