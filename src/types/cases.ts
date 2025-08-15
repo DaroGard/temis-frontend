@@ -2,10 +2,10 @@
 
 // Enums del backend
 export type CaseType = 
-  | 'CIVIL' 
-  | 'PENAL' 
-  | 'LABORAL' 
-  | 'CONTENCIOSO_ADMINISTRATIVO'
+  | 'CIVIL'
+  | 'PENAL'
+  | 'LABORAL'
+  | 'CONTENCIOSO_ADMINISTRATIVO' 
   | 'MERCANTIL'
   | 'RECLAMOS_MENORES'
   | 'FAMILIA'
@@ -45,13 +45,11 @@ export interface LegalCaseOut {
   status: string;
 }
 
-// Para crear nuevo caso (basado en NewCaseData schema)
+// Para crear nuevo caso (basado en NewCaseData schema ACTUALIZADO - sin plaintiff/defendant)
 export interface NewCaseData {
   title: string;
   start_date: string; // ISO datetime
   case_type: CaseType;
-  plaintiff: string;
-  defendant: string;
   description?: string;
   notes?: string;
   client_id?: number;
@@ -104,7 +102,6 @@ export interface CaseFile {
 }
 
 // Para compatibilidad con tu código actual
-
 export interface LegalCase {
   id: number;
   title: string;
@@ -132,7 +129,7 @@ export interface LegalCase {
 // Tipos para formularios
 export interface CreateCaseFormData {
   title: string;
-  caseNumber: string;
+  caseNumber?: string; // Opcional
   startDate: string;
   caseType: string;
   priority: string;
@@ -146,6 +143,33 @@ export interface CreateCaseFormData {
   clientPhoneAlt?: string;
   clientEmail: string;
   clientAddress?: string;
-  clientGender?: string;
+  clientGender: string;
   // Agenda
-  firstMeeting?: string;}
+  firstMeeting?: string;
+}
+
+// Tipo para el servicio createCase (simplificado)
+export interface CreateCaseData {
+  title: string;
+  startDate: string;
+  caseType: string;
+  priority: string;
+  description: string;
+  notes?: string;
+  clientFirstName: string;
+  clientLastName: string;
+  clientDni: string;
+  clientPhone: string;
+  clientPhoneAlt?: string;
+  clientEmail: string;
+  clientAddress?: string;
+}
+
+// Constantes para validación
+export const CASE_TYPES_FRONTEND = ['civil', 'penal', 'laboral', 'familiar'] as const;
+export const PRIORITIES_FRONTEND = ['alta', 'media', 'baja'] as const;
+export const GENDERS = ['masculino', 'femenino', 'otro', 'no_especifica'] as const;
+
+export type CaseTypeFrontend = typeof CASE_TYPES_FRONTEND[number];
+export type PriorityFrontend = typeof PRIORITIES_FRONTEND[number];
+export type Gender = typeof GENDERS[number];
