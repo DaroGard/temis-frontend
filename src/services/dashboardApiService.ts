@@ -33,9 +33,12 @@ const API_DOMAIN = import.meta.env.VITE_API_DOMAIN;
 const getApiBaseUrl = (): string => {
   // Si existe la variable de entorno, usarla
   if (API_DOMAIN) {
+    console.log(`🔗 API URL from env: ${API_DOMAIN}`);
     return API_DOMAIN;
   }
   
+  // Fallback: usar un valor predeterminado
+  console.log(`🔗 API URL (default fallback): http://localhost:8000`);
   return 'http://localhost:8000';
 };
 
@@ -122,53 +125,69 @@ class DashboardApiService {
   }
 
   // Método para obtener la agenda completa (sin filtros de fecha)
-  async getTodayAgenda(): Promise<ApiResponse<DashboardAgendaItem[]>> {
-    const url = `/agenda/items/all`;
-    const response = await this.makeRequest<AgendaItem[]>(url);
-    
-    if (response.success && response.data) {
-      // Transformar los datos del backend al formato esperado por el frontend
-      const dashboardItems: DashboardAgendaItem[] = response.data.map(item => {
-        const date = new Date(item.due_date);
-        const time = date.toLocaleTimeString('es-HN', { 
+// En tu dashboardApiService.ts, actualiza el método getTodayAgenda():
+
+async getTodayAgenda(): Promise<ApiResponse<DashboardAgendaItem[]>> {
+  const url = `/agenda/items/all`;
+  const response = await this.makeRequest<AgendaItem[]>(url);
+  
+  if (response.success && response.data) {
+    // Transformar los datos del backend al formato esperado por el frontend
+    const dashboardItems: DashboardAgendaItem[] = response.data.map(item => {
+      const date = new Date(item.due_date);
+      
+      // Verificar si la hora es 00:00 (medianoche)
+      const isMiddnight = date.getHours() === 0 && date.getMinutes() === 0;
+      
+      let timeDisplay: string;
+      if (isMiddnight) {
+        // Si es medianoche, mostrar la fecha
+        timeDisplay = date.toLocaleDateString('es-HN', { 
+          day: 'numeric',
+          month: 'short',
+          year: 'numeric'
+        });
+      } else {
+        // Si tiene hora específica, mostrar la hora
+        timeDisplay = date.toLocaleTimeString('es-HN', { 
           hour: '2-digit', 
           minute: '2-digit',
           hour12: false 
         });
-        
-        // Determinar el tipo basado en tags o nombre del evento
-        let type: 'audiencia' | 'consulta' | 'reunion' = 'reunion';
-        if (item.tags?.includes('audiencia')) {
-          type = 'audiencia';
-        } else if (item.tags?.includes('consulta')) {
-          type = 'consulta';
-        } else if (item.event_name.toLowerCase().includes('audiencia')) {
-          type = 'audiencia';
-        } else if (item.event_name.toLowerCase().includes('consulta')) {
-          type = 'consulta';
-        }
-        
-        return {
-          id: item.id,
-          time: time,
-          title: item.event_name,
-          location: item.description || "No especificado",
-          type: type
-        };
-      });
+      }
+      
+      // Determinar el tipo basado en tags o nombre del evento
+      let type: 'audiencia' | 'consulta' | 'reunion' = 'reunion';
+      if (item.tags?.includes('audiencia')) {
+        type = 'audiencia';
+      } else if (item.tags?.includes('consulta')) {
+        type = 'consulta';
+      } else if (item.event_name.toLowerCase().includes('audiencia')) {
+        type = 'audiencia';
+      } else if (item.event_name.toLowerCase().includes('consulta')) {
+        type = 'consulta';
+      }
       
       return {
-        success: true,
-        data: dashboardItems
+        id: item.id,
+        time: timeDisplay,  // ← Ahora mostrará fecha o hora según corresponda
+        title: item.event_name,
+        location: item.description || "No especificado",
+        type: type
       };
-    }
+    });
     
     return {
-      success: false,
-      error: response.error
+      success: true,
+      data: dashboardItems
     };
   }
-
+  
+  return {
+    success: false,
+    error: response.error
+  };
+}
   async getUserProfile(): Promise<ApiResponse<UserProfile>> {
     return this.makeRequest<UserProfile>('/user/profile');
   }

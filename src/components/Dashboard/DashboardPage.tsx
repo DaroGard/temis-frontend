@@ -8,13 +8,13 @@ import { Navbar } from '~/components/layout/user/UserNavbar';
 import Footer from '~/components/layout/user/UserFooter';
 
 // Importar hooks del servicio API
-import {
-  useDashboardMetrics,
-  useRecentCases,
-  useRecentInvoices,
+import { 
+  useDashboardMetrics, 
+  useRecentCases, 
+  useRecentInvoices, 
   useUserProfile,
   useBackendStatus,
-  useTodayAgenda,
+  useTodayAgenda, 
   dashboardApiService
 } from '~/services/dashboardApiService';
 
@@ -38,8 +38,8 @@ const transformInvoicesForDashboard = (invoices: DashboardInvoice[]) => {
     invoice_number: `#f-${invoice.invoice_number}`,
     client_name: invoice.client_name,
     amount: `L ${invoice.total_amount.toFixed(2)}`,
-    status: invoice.status.toLowerCase() === 'pendiente' ? 'pending' as const :
-      invoice.status.toLowerCase() === 'pagada' ? 'paid' as const : 'overdue' as const
+    status: invoice.status.toLowerCase() === 'pendiente' ? 'pending' as const : 
+            invoice.status.toLowerCase() === 'pagada' ? 'paid' as const : 'overdue' as const
   }));
 };
 
@@ -117,7 +117,7 @@ const Dashboard = () => {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-links mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
           <p className="text-slate-600">Cargando dashboard...</p>
         </div>
       </div>
@@ -131,12 +131,12 @@ const Dashboard = () => {
 
       {/* Backend Status Indicator */}
       {backendStatus !== 'online' && (
-        <div className="bg-red-100 border-l-4 border-warning text-red-700 p-4">
+        <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4">
           <div className="flex">
             <div className="ml-3">
               <p className="text-sm">
                 ⚠️ Problemas de conexión con el servidor. Algunos datos pueden no estar actualizados.
-                <button
+                <button 
                   onClick={handleRefreshAll}
                   className="ml-2 underline hover:no-underline"
                 >
@@ -193,7 +193,7 @@ const Dashboard = () => {
           <button
             onClick={handleRefreshAll}
             disabled={isLoading}
-            className="bg-links text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
+            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
           >
             {isLoading ? '🔄 Actualizando...' : '🔄 Actualizar datos'}
           </button>
@@ -204,29 +204,29 @@ const Dashboard = () => {
           <MetricsCards metrics={transformMetricsForDashboard(metrics)} />
         ) : (
           <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-8">
-            <p className="text-pending">No se pudieron cargar las métricas</p>
+            <p className="text-yellow-700">No se pudieron cargar las métricas</p>
           </div>
         )}
 
         {/* Main Sections Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
           <div className="flex flex-col">
-            <CasesSection
+            <CasesSection 
               cases={cases ? transformCasesForDashboard(cases) : []}
               onViewAll={handleViewAllCases}
             />
           </div>
 
           <div className="flex flex-col">
-            <InvoicesSection
+            <InvoicesSection 
               invoices={invoices ? transformInvoicesForDashboard(invoices) : []}
               onViewAll={handleViewAllInvoices}
             />
           </div>
 
           <div className="flex flex-col">
-            <AgendaSection
-              agendaItems={agendaItems ? agendaItems.slice(0, 2) : []}
+            <AgendaSection 
+              agendaItems={agendaItems ? agendaItems.slice(0, 2) : []} 
               onViewCalendar={handleViewCalendar}
             />
           </div>
@@ -237,7 +237,7 @@ const Dashboard = () => {
           <RecentActivity activities={mockActivity} />
         </div>
       </main>
-      <Footer />
+      <Footer/>
     </div>
   );
 };
