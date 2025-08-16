@@ -41,22 +41,22 @@ export function useCreateCase() {
     }));
 
     try {
-      console.log('🚀 Iniciando creación de caso...');
+      console.log('Iniciando creación de caso...');
       console.log('Datos del formulario:', data);
 
       // Crear el caso
       const response = await casesService.createCase(data);
-      console.log('✅ Caso creado exitosamente:', response);
+      console.log('Caso creado exitosamente:', response);
 
       // Si hay archivos, subirlos después de crear el caso
       if (files && files.length > 0 && response.id) {
-        console.log(`📁 Subiendo ${files.length} archivos...`);
+        console.log(`Subiendo ${files.length} archivos...`);
         
         const uploadPromises = files.map(async (file, index) => {
           try {
-            console.log(`📄 Subiendo archivo ${index + 1}/${files.length}: ${file.name}`);
+            console.log(`Subiendo archivo ${index + 1}/${files.length}: ${file.name}`);
             const uploadResponse = await casesService.uploadFile(response.id, file);
-            console.log(`✅ Archivo ${file.name} subido exitosamente`);
+            console.log(`Archivo ${file.name} subido exitosamente`);
             return uploadResponse;
           } catch (error) {
             console.error(`❌ Error subiendo archivo ${file.name}:`, error);
@@ -68,10 +68,10 @@ export function useCreateCase() {
         const uploadResults = await Promise.all(uploadPromises);
         const successfulUploads = uploadResults.filter(result => result !== null);
         
-        console.log(`📊 Archivos subidos: ${successfulUploads.length}/${files.length}`);
+        console.log(`Archivos subidos: ${successfulUploads.length}/${files.length}`);
         
         if (successfulUploads.length < files.length) {
-          console.warn('⚠️ Algunos archivos no se pudieron subir');
+          console.warn('Algunos archivos no se pudieron subir');
         }
       }
 

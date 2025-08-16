@@ -12,6 +12,7 @@ import { NotesCard } from '~/components/CaseForm/NotesCard';
 import { FileUploadCard } from '~/components/CaseForm/FileUploadCard';
 import { ScheduleCard } from '~/components/CaseForm/ScheduleCard';
 import Footer from '~/components/layout/user/UserFooter';
+// Importa el casesService completo
 import { casesService } from '~/services/casesService';
 
 // Schema de validación simplificado
@@ -87,6 +88,9 @@ function NewCase() {
   // Verificar si todos los campos requeridos están completos
   const requiredFieldsCompleted = watchedValues.every(value => value && value.trim() !== '');
 
+  // =========================================================================
+  // AQUÍ ESTÁ LA LÓGICA DE LA FUNCIÓN "handleSaveButtonClick"
+  // =========================================================================
   const onSubmit = async (data: FormData) => {
     console.log('🎯 Formulario enviado');
     
@@ -131,27 +135,17 @@ function NewCase() {
 
       console.log('🧹 Datos preparados:', cleanData);
 
-      // Llamar al servicio
-      const response = await casesService.createCase(cleanData);
+      // =========================================================================
+      // CÓDIGO ACTUALIZADO:
+      // Llamamos a la nueva función "orquestadora" que hace todo el trabajo
+      // de crear el caso y subir los archivos en un solo paso.
+      // =========================================================================
+      const response = await casesService.createCaseAndUploadFiles(cleanData, selectedFiles);
       
-      console.log('✅ Caso creado exitosamente');
+      console.log('✅ Caso creado y archivos subidos exitosamente:', response);
       
       setSuccess(true);
       
-      // Subir archivos si hay alguno
-      if (selectedFiles.length > 0 && response?.id) {
-        console.log(`📁 Subiendo ${selectedFiles.length} archivos...`);
-        
-        for (const file of selectedFiles) {
-          try {
-            await casesService.uploadFile(response.id, file);
-            console.log(`✅ Archivo ${file.name} subido`);
-          } catch (fileError) {
-            console.warn(`⚠️ Error subiendo archivo ${file.name}`);
-          }
-        }
-      }
-
       // Redirigir después de 2 segundos
       setTimeout(() => {
         navigate({ to: '/cases' });
@@ -173,6 +167,7 @@ function NewCase() {
       setIsSubmitting(false);
     }
   };
+  // =========================================================================
 
   const handleFilesChange = (files: File[]) => {
     console.log('📁 Archivos seleccionados:', files.map(f => f.name));

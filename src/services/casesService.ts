@@ -1,8 +1,10 @@
+// src/services/casesService.ts
+
 import { CreateCaseData } from '~/types/cases';
 
 const API_DOMAIN = import.meta.env.VITE_API_DOMAIN;
 
-// Función helper para hacer requests 
+// Función helper para hacer requests
 async function apiRequest(endpoint: string, options: RequestInit = {}, debug = false) {
   if (debug) {
     console.log(`Making request to: ${API_DOMAIN}${endpoint}`);
@@ -77,16 +79,16 @@ async function apiRequest(endpoint: string, options: RequestInit = {}, debug = f
   }
 }
 
-// Servicio 
+// Servicio
 export const casesService = {
   // ===== MÉTODOS PARA OBTENER CASOS=====
   
-  // Obtener todos los casos del usuario 
+  // Obtener todos los casos del usuario
   getAllCases: async () => {
     try {
       const response = await apiRequest('/legal/cases');
       
-      // Tu backend devuelve un array 
+      // Tu backend devuelve un array
       if (Array.isArray(response)) {
         return {
           cases: response,
@@ -107,7 +109,7 @@ export const casesService = {
     }
   },
   
-  // Obtener métricas de casos 
+  // Obtener métricas de casos
   getCasesMetrics: async () => {
     try {
       return await apiRequest('/legal/cases/metrics');
@@ -129,7 +131,7 @@ export const casesService = {
 
   // ===== MÉTODOS PARA ACTUALIZAR CASOS (COMPATIBLES CON CaseEditModal) =====
   
-  // Actualizar caso completo 
+  // Actualizar caso completo
   updateCase: async (caseId: number, updateData: {
     title?: string;
     case_type?: string;
@@ -148,7 +150,7 @@ export const casesService = {
           'media': 'MID',
           'baja': 'NORMAL',
           'high': 'HIGH',
-          'mid': 'MID', 
+          'mid': 'MID',
           'normal': 'NORMAL'
         };
         return priorityMap[priority.toLowerCase()] || priority.toUpperCase();
@@ -213,7 +215,7 @@ export const casesService = {
 
   // ===== MÉTODO PARA CREAR CASOS NUEVOS =====
   
-  // Crear nuevo caso 
+  // Crear nuevo caso
   createCase: async (caseData: CreateCaseData) => {
     console.log('createCase llamado con:', caseData);
 
@@ -223,7 +225,7 @@ export const casesService = {
     if (!caseData.clientFirstName?.trim()) throw new Error('El nombre del cliente es requerido');
     if (!caseData.clientEmail?.includes('@')) throw new Error('Email inválido');
 
-    // Convertir fecha al formato ISO 
+    // Convertir fecha al formato ISO
     let formattedDate: string;
     try {
       if (caseData.startDate.includes('T')) {
@@ -237,7 +239,7 @@ export const casesService = {
       throw new Error('Formato de fecha inválido');
     }
 
-    // Preparar datos del cliente 
+    // Preparar datos del cliente
     const clientData = {
       first_name: caseData.clientFirstName.trim(),
       last_name: caseData.clientLastName.trim(),
@@ -249,24 +251,24 @@ export const casesService = {
 
     console.log('Datos del cliente preparados:', clientData);
 
-    // Preparar el payload 
+    // Preparar el payload
     const backendPayload = {
       title: caseData.title.trim(),
       start_date: formattedDate,
       case_type: mapCaseTypeToEnum(caseData.caseType), // CaseTypeEnum
       description: caseData.description.trim(),
       notes: caseData.notes?.trim() || '',
-      client_id: 0, 
+      client_id: 0,
       client: clientData // Datos del cliente nuevo
     };
 
-    // Función helper para mapear tipo de caso a enum 
+    // Función helper para mapear tipo de caso a enum
     function mapCaseTypeToEnum(caseType: string): string {
       const caseTypeMap: Record<string, string> = {
         'civil': 'civil',
-        'penal': 'penal', 
+        'penal': 'penal',
         'laboral': 'laboral',
-        'familiar': 'familia' 
+        'familiar': 'familia'
       };
       return caseTypeMap[caseType.toLowerCase()] || 'civil';
     }
@@ -305,6 +307,47 @@ export const casesService = {
     }
   },
 
+  // ===== NUEVO MÉTODO PARA CREAR CASO Y SUBIR ARCHIVOS EN UN SOLO FLUJO =====
+  createCaseAndUploadFiles: async (caseData: CreateCaseData, files: File[]) => {
+    try {
+      // 1. Llamar a la función existente para crear el caso
+      console.log("Paso 1: Creando el caso en el backend...");
+      const newCase = await casesService.createCase(caseData);
+      
+      const newCaseId = newCase.id;
+
+      console.log(`Paso 1 completado. Caso creado con ID: ${newCaseId}`);
+
+      // 2. Verificar si hay archivos para subir
+      if (files && files.length > 0) {
+        console.log(`Paso 2: Subiendo ${files.length} archivos...`);
+        const uploadPromises = files.map(file => {
+          // Llamar a la función existente para subir cada archivo
+          console.log(`   > Subiendo archivo: ${file.name}`);
+          return casesService.uploadFile(newCaseId, file);
+        });
+        
+        // Esperar a que todas las subidas se completen (o fallen)
+        await Promise.all(uploadPromises);
+        console.log("Paso 2 completado. Todos los archivos subidos.");
+      } else {
+        console.log("No se encontraron archivos para subir. Proceso terminado.");
+      }
+
+      // 3. Devolver la respuesta final
+      return {
+        ...newCase,
+        message: "Caso creado y archivos subidos exitosamente.",
+      };
+
+    } catch (error) {
+      console.error('Error en el flujo de creación y subida:', error);
+      // Aquí puedes manejar el error de forma más detallada si necesitas
+      // Por ejemplo, si el caso se creó pero la subida falló.
+      throw error;
+    }
+  },
+
   // ===== MÉTODOS PARA ARCHIVOS =====
   
   // Obtener archivos de un caso
@@ -323,7 +366,7 @@ export const casesService = {
       const formData = new FormData();
       formData.append('file', file);
 
-      const response = await fetch(`${API_DOMAIN}/legal/upload?case_id=${caseId}`, {
+      const response = await fetch(`${API_DOMAIN}/legal/file/upload?case_id=${caseId}`, {
         method: 'POST',
         credentials: 'include',
         body: formData,
@@ -343,7 +386,7 @@ export const casesService = {
 
   // ===== FUNCIONES HELPER PARA CONVERSIÓN DE DATOS =====
   
-  // Convertir caso del backend al formato del frontend 
+  // Convertir caso del backend al formato del frontend
   convertBackendToFrontend: (backendCase: any) => {
     return {
       id: backendCase.id,
@@ -374,7 +417,7 @@ export const casesService = {
     };
   },
 
-  // Convertir lista de casos del backend al formato frontend 
+  // Convertir lista de casos del backend al formato frontend
   convertCasesSummary: (backendData: any) => {
     let casesArray = [];
     
@@ -428,7 +471,7 @@ export const authService = {
       const response = await fetch(`${API_DOMAIN}/auth/login`, {
         method: 'POST',
         credentials: 'include',
-        body: formData, 
+        body: formData,
       });
 
       if (!response.ok) {
